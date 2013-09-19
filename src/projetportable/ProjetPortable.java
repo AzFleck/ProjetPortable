@@ -128,7 +128,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) {
-		ProjetPortable pp = new ProjetPortable();
+		//ProjetPortable pp = new ProjetPortable();
+            ProjetPortable.test();
 	}
 
 	@Override
@@ -138,10 +139,10 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		 * Ouvrir le fichier puis écrire la requête à la fin du fichier
 		 * Vider les champs
 		 */
-		test();
+		ProjetPortable.test();
 	}
 	
-	public void test() {
+	public static void test() {
 		try {
 			int nbreDeFois = 0;
 			String contenu = "";
@@ -151,10 +152,24 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			while (input.available() > 0) {
 				contenu += (char) input.read();
 			}
-			//contenu = contenu.substring(contenu.indexOf("<!-- menu-gauche -->"));
-			int ind = contenu.indexOf("<form class=\"item\" id=");
-			contenu = contenu.substring(ind);
-			System.out.println(contenu);
+			//début d'item
+			contenu = contenu.substring(contenu.indexOf("<form class=\"item\" id="));
+                        contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
+                        int fin = contenu.indexOf("&nbsp");
+                        String nomObjet = contenu.substring(0,fin);
+                        System.out.println("Nom objet : "+nomObjet);
+			contenu = contenu.substring(contenu.indexOf("<span>")+6);//juste avant le type
+                        String typeObjet = contenu.substring(0,contenu.indexOf(" "));
+                        System.out.println("Type objet : "+typeObjet);
+			contenu = contenu.substring(contenu.indexOf("Niveau ")+7);//juste avant le niveau
+                        String lvlObjet = contenu.substring(0,contenu.indexOf(" "));
+                        System.out.println("Niveau objet : "+lvlObjet);
+			contenu = contenu.substring(contenu.indexOf("relative'><img src=")+20);//juste avant l'image
+                        String imgObjet = contenu.substring(0,contenu.indexOf("\""));
+                        System.out.println("Image objet : "+imgObjet);
+                        contenu = contenu.substring(contenu.indexOf("Effets")+6);//début des dommages et caracs.
+                        System.out.println(contenu);
+                        
 			/*
 			String pattern = ".*<body>.*";
 			Pattern pat = Pattern.compile(pattern);
