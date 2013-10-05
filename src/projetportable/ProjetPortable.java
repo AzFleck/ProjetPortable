@@ -147,11 +147,11 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			int nbreDeFois = 0;
 			String contenu = "";
 			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/pioche.html");
-			URLConnection con = url.openConnection();
-			InputStream input = con.getInputStream();
-			while (input.available() > 0) {
-				contenu += (char) input.read();
-			}
+			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+			String inputLine;
+			while ((inputLine = in.readLine()) != null)
+				contenu+=inputLine;
+			in.close();
 			//début d'item
 			contenu = contenu.substring(contenu.indexOf("<form class=\"item\" id="));
                         contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
