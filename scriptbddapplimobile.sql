@@ -52,6 +52,36 @@ insert into Caracteristique values (43, "Dommage % piège");
 
 
 -- -----------------------------------------------------
+-- Table `Element`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Element` (
+  `idElement` INT NOT NULL,
+  `label` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idElement`));
+
+insert into Element values (1, "Neutre");
+insert into Element values (2, "Terre");
+insert into Element values (3, "Feu");
+insert into Element values (4, "Eau");
+insert into Element values (5, "Air");
+
+-- -----------------------------------------------------
+-- Table `Dommages`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Dommages` (
+  `idDommages` INT NOT NULL,
+  `min` INT NOT NULL,
+  `max` INT NOT NULL,
+  `Element_idElement` INT NOT NULL,
+  PRIMARY KEY (`idDommages`, `Element_idElement`),
+  INDEX `fk_Dommages_Element1_idx` (`Element_idElement` ASC),
+  CONSTRAINT `fk_Dommages_Element1`
+    FOREIGN KEY (`Element_idElement`)
+    REFERENCES `bdd`.`Element` (`idElement`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+-- -----------------------------------------------------
 -- Table `Type`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `Type` (
@@ -108,9 +138,11 @@ CREATE  TABLE IF NOT EXISTS `ObjetPersonnalise` (
   `Caracteristique_idCaracteristique` INT NOT NULL ,
   `Objet_idObjet` INT NOT NULL ,
   `valeur` INT NOT NULL ,
+  `Dommages_idDommages` INT NULL,
   PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`) ,
   INDEX `fk_Caracteristique_has_Objet_Objet1_idx` (`Objet_idObjet` ASC) ,
   INDEX `fk_Caracteristique_has_Objet_Caracteristique_idx` (`Caracteristique_idCaracteristique` ASC) ,
+  INDEX `fk_ObjetPersonnalise_Dommages1_idx` (`Dommages_idDommages` ASC),
   CONSTRAINT `fk_Caracteristique_has_Objet_Caracteristique`
     FOREIGN KEY (`Caracteristique_idCaracteristique` )
     REFERENCES `Caracteristique` (`idCaracteristique` )
@@ -119,6 +151,11 @@ CREATE  TABLE IF NOT EXISTS `ObjetPersonnalise` (
   CONSTRAINT `fk_Caracteristique_has_Objet_Objet1`
     FOREIGN KEY (`Objet_idObjet` )
     REFERENCES `Objet` (`idObjet` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+  CONSTRAINT `fk_ObjetPersonnalise_Dommages1`
+    FOREIGN KEY (`Dommages_idDommages`)
+    REFERENCES `Dommages` (`idDommages`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
@@ -131,9 +168,11 @@ CREATE  TABLE IF NOT EXISTS `ObjetBasique` (
   `Objet_idObjet` INT NOT NULL ,
   `Minimum` INT NOT NULL ,
   `Maximum` INT NOT NULL ,
+  `Dommages_idDommages` INT NULL,
   PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`) ,
   INDEX `fk_Caracteristique_has_Objet1_Objet1_idx` (`Objet_idObjet` ASC) ,
   INDEX `fk_Caracteristique_has_Objet1_Caracteristique1_idx` (`Caracteristique_idCaracteristique` ASC) ,
+  INDEX `fk_ObjetBasique_Dommages1_idx` (`Dommages_idDommages` ASC),
   CONSTRAINT `fk_Caracteristique_has_Objet1_Caracteristique1`
     FOREIGN KEY (`Caracteristique_idCaracteristique` )
     REFERENCES `Caracteristique` (`idCaracteristique` )
@@ -142,6 +181,11 @@ CREATE  TABLE IF NOT EXISTS `ObjetBasique` (
   CONSTRAINT `fk_Caracteristique_has_Objet1_Objet1`
     FOREIGN KEY (`Objet_idObjet` )
     REFERENCES `Objet` (`idObjet` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+  CONSTRAINT `fk_ObjetBasique_Dommages1`
+    FOREIGN KEY (`Dommages_idDommages`)
+    REFERENCES `Dommages` (`idDommages`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
@@ -271,6 +315,7 @@ CREATE  TABLE IF NOT EXISTS `Race_has_Sort` (
 CREATE  TABLE IF NOT EXISTS `Caracteristique_has_Personnage` (
   `Caracteristique_idCaracteristique` INT NOT NULL ,
   `Personnage_idPersonnage` INT NOT NULL ,
+  `value` INT NOT NULL,
   PRIMARY KEY (`Caracteristique_idCaracteristique`, `Personnage_idPersonnage`) ,
   INDEX `fk_Caracteristique_has_Personnage_Personnage1_idx` (`Personnage_idPersonnage` ASC) ,
   INDEX `fk_Caracteristique_has_Personnage_Caracteristique1_idx` (`Caracteristique_idCaracteristique` ASC) ,

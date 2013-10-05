@@ -144,7 +144,6 @@ public class ProjetPortable extends JFrame implements ActionListener {
 	
 	public static void test() {
 		try {
-			int nbreDeFois = 0;
 			String contenu = "";
 			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/pioche.html");
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -154,30 +153,36 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			in.close();
 			//début d'item
 			contenu = contenu.substring(contenu.indexOf("<form class=\"item\" id="));
-                        contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
-                        int fin = contenu.indexOf("&nbsp");
-                        String nomObjet = contenu.substring(0,fin);
-                        System.out.println("Nom objet : "+nomObjet);
+			contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
+			int fin = contenu.indexOf("&nbsp");
+			String nomObjet = contenu.substring(0,fin);
+			System.out.println("Nom objet : "+nomObjet);
 			contenu = contenu.substring(contenu.indexOf("<span>")+6);//juste avant le type
-                        String typeObjet = contenu.substring(0,contenu.indexOf(" "));
-                        System.out.println("Type objet : "+typeObjet);
+			String typeObjet = contenu.substring(0,contenu.indexOf(" "));
+			System.out.println("Type objet : "+typeObjet);
 			contenu = contenu.substring(contenu.indexOf("Niveau ")+7);//juste avant le niveau
-                        String lvlObjet = contenu.substring(0,contenu.indexOf(" "));
-                        System.out.println("Niveau objet : "+lvlObjet);
+			String lvlObjet = contenu.substring(0,contenu.indexOf("<"));
+			System.out.println("Niveau objet : "+lvlObjet);
 			contenu = contenu.substring(contenu.indexOf("relative'><img src=")+20);//juste avant l'image
-                        String imgObjet = contenu.substring(0,contenu.indexOf("\""));
-                        System.out.println("Image objet : "+imgObjet);
-                        contenu = contenu.substring(contenu.indexOf("Effets")+6);//début des dommages et caracs.
-                        System.out.println(contenu);
-                        
-			/*
-			String pattern = ".*<body>.*";
-			Pattern pat = Pattern.compile(pattern);
-			Matcher matcher = pat.matcher(contenu);
-			while (matcher.find()) {
-				nbreDeFois++;
-				System.out.println("nbreDeFois: " + nbreDeFois);
-			}*/
+			String imgObjet = contenu.substring(0,contenu.indexOf("\""));
+			System.out.println("Image objet : "+imgObjet);
+			contenu = contenu.substring(contenu.indexOf("Effets")+6);//début des dommages et caracs.
+			contenu = contenu.substring(contenu.indexOf("\">")+2);//début des dommages
+			//TODO if puis while pour si c'est une arme et plusieurs do
+			String minDom = contenu.substring(0,contenu.indexOf(" "));
+			contenu = contenu.substring(contenu.indexOf(" à ")+3);
+			String maxDom = contenu.substring(0,contenu.indexOf(" "));
+			contenu = contenu.substring(contenu.indexOf("dommages ")+9);
+			String typeDom = contenu.substring(0,contenu.indexOf(")"));
+			//fin du while, tant que l'index est inférieur à celui du hr
+			contenu = contenu.substring(contenu.indexOf("hr class=\"sep\" />")+19);//fin des dommages
+			System.out.println("min Dom : "+minDom);
+			System.out.println("max Dom : "+maxDom);
+			System.out.println("type Dom : "+typeDom);
+			//fin du if
+			//TODO gérer les caracs si il y en a. (test si l'index est inférieur ou non)
+			System.out.println(contenu);
+			
 		} catch (MalformedURLException e) {
 			System.out.println(e);
 		} catch (IOException e) {
