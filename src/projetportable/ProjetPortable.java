@@ -166,21 +166,44 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			contenu = contenu.substring(contenu.indexOf("relative'><img src=")+20);//juste avant l'image
 			String imgObjet = contenu.substring(0,contenu.indexOf("\""));
 			System.out.println("Image objet : "+imgObjet);
+			String minDom;
+			String maxDom;
+			String typeDom;
 			contenu = contenu.substring(contenu.indexOf("Effets")+6);//début des dommages et caracs.
-			contenu = contenu.substring(contenu.indexOf("\">")+2);//début des dommages
-			//TODO if puis while pour si c'est une arme et plusieurs do
-			String minDom = contenu.substring(0,contenu.indexOf(" "));
-			contenu = contenu.substring(contenu.indexOf(" à ")+3);
-			String maxDom = contenu.substring(0,contenu.indexOf(" "));
-			contenu = contenu.substring(contenu.indexOf("dommages ")+9);
-			String typeDom = contenu.substring(0,contenu.indexOf(")"));
-			//fin du while, tant que l'index est inférieur à celui du hr
-			contenu = contenu.substring(contenu.indexOf("hr class=\"sep\" />")+19);//fin des dommages
-			System.out.println("min Dom : "+minDom);
-			System.out.println("max Dom : "+maxDom);
-			System.out.println("type Dom : "+typeDom);
-			//fin du if
-			//TODO gérer les caracs si il y en a. (test si l'index est inférieur ou non)
+			if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
+					typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
+				int rangeHR = contenu.indexOf("<hr");
+				contenu = contenu.substring(contenu.indexOf("\">")+2);
+				int suivant;
+				do{
+					minDom = contenu.substring(0,contenu.indexOf(" "));
+					contenu = contenu.substring(contenu.indexOf(" à ")+3);
+					maxDom = contenu.substring(0,contenu.indexOf(" "));
+					contenu = contenu.substring(contenu.indexOf("dommages ")+9);
+					typeDom = contenu.substring(0,contenu.indexOf(")"));
+					suivant = contenu.indexOf("<span");
+					System.out.println("min Dom : "+minDom);
+					System.out.println("max Dom : "+maxDom);
+					System.out.println("type Dom : "+typeDom);
+				}while(suivant != -1 && suivant < rangeHR);
+				contenu = contenu.substring(contenu.indexOf("hr"));//On quitte les dommages
+			}
+			int indexDiv = contenu.indexOf("</div>");
+			int indexSpan = contenu.indexOf("span");
+			String minCarac;
+			String maxCarac;
+			String typeCarac;
+			while( indexSpan != -1 && indexSpan < indexDiv){
+				//TODO gérer les caracs si il y en a. (test si l'index est inférieur ou non)
+				contenu = contenu.substring(contenu.indexOf("span"));//On passe le span
+				contenu = contenu.substring(contenu.indexOf(">")+1);
+				minCarac = contenu.substring(0,contenu.indexOf(" "));
+				contenu = contenu.substring(contenu.indexOf(" à ")+3);
+				maxCarac = contenu.substring(0,contenu.indexOf(" "));
+				contenu = contenu.substring(contenu.indexOf(" ")+1);
+				typeCarac = contenu.substring(0,contenu.indexOf("<"));
+			}
+			contenu = contenu.substring(contenu.indexOf("</div>")+6);
 			System.out.println(contenu);
 			
 		} catch (MalformedURLException e) {
