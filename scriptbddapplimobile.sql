@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `Dommages` (
   INDEX `fk_Dommages_Element1_idx` (`Element_idElement` ASC),
   CONSTRAINT `fk_Dommages_Element1`
     FOREIGN KEY (`Element_idElement`)
-    REFERENCES `bdd`.`Element` (`idElement`)
+    REFERENCES `Element` (`idElement`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
@@ -119,7 +119,6 @@ CREATE  TABLE IF NOT EXISTS `Objet` (
   `idObjet` INT NOT NULL ,
   `nom` VARCHAR(45) NOT NULL ,
   `image` VARCHAR(255) NOT NULL ,
-  `description` VARCHAR(255) NOT NULL ,
   `niveau` INT NOT NULL ,
   `Type_idType` INT NOT NULL ,
   PRIMARY KEY (`idObjet`) ,
@@ -152,7 +151,7 @@ CREATE  TABLE IF NOT EXISTS `ObjetPersonnalise` (
     FOREIGN KEY (`Objet_idObjet` )
     REFERENCES `Objet` (`idObjet` )
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION,
   CONSTRAINT `fk_ObjetPersonnalise_Dommages1`
     FOREIGN KEY (`Dommages_idDommages`)
     REFERENCES `Dommages` (`idDommages`)
@@ -182,7 +181,7 @@ CREATE  TABLE IF NOT EXISTS `ObjetBasique` (
     FOREIGN KEY (`Objet_idObjet` )
     REFERENCES `Objet` (`idObjet` )
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION,
   CONSTRAINT `fk_ObjetBasique_Dommages1`
     FOREIGN KEY (`Dommages_idDommages`)
     REFERENCES `Dommages` (`idDommages`)

@@ -140,6 +140,40 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		ProjetPortable.test();
 	}
 	
+	public static void ecrireFinFichier(String texte){
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter("insert.txt", true);
+			BufferedWriter output = new BufferedWriter(fw);
+			output.write(texte);
+			output.write("\r\n");
+			output.write("\r\n");
+			output.flush();
+			output.close();
+		} catch (IOException ex) {
+			System.err.println(ex.getMessage());
+		}
+	}
+	
+	public static void insertObjet(String nom, String image, String niveau, String type){
+		String req = "Select idType from type where designation = \"" + type + "\"";
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "");
+			Statement st = con.createStatement();
+			ResultSet result = st.executeQuery(req);
+			result.next();
+			int idType = result.getInt(1);
+			String requete = "insert into objet(idObjet, nom, image, niveau, idType) "
+					+ "values (1, \""+nom+"\", \""+image+"\", "+niveau+", "+idType+")";
+			System.out.println(requete);
+			ProjetPortable.ecrireFinFichier(requete);
+		} catch (Exception ex) {
+			System.out.println("erreur dans la récup des types");
+			System.err.println(ex.getMessage());
+		}
+	}
+	
 	public static void test() {
 		try {
 			String contenu = "";
@@ -156,16 +190,13 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
 				int fin = contenu.indexOf("&nbsp");
 				String nomObjet = contenu.substring(0,fin);
-				System.out.println("Nom objet : "+nomObjet);
 				contenu = contenu.substring(contenu.indexOf("<span>")+6);//juste avant le type
 				String typeObjet = contenu.substring(0,contenu.indexOf(" "));
-				System.out.println("Type objet : "+typeObjet);
 				contenu = contenu.substring(contenu.indexOf("Niveau ")+7);//juste avant le niveau
 				String lvlObjet = contenu.substring(0,contenu.indexOf("<"));
-				System.out.println("Niveau objet : "+lvlObjet);
 				contenu = contenu.substring(contenu.indexOf("relative'><img src=")+20);//juste avant l'image
 				String imgObjet = contenu.substring(0,contenu.indexOf("\""));
-				System.out.println("Image objet : "+imgObjet);
+				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, typeObjet);
 				String minDom;
 				String maxDom;
 				String typeDom;
