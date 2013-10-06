@@ -21,8 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.io.*;
 import java.net.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -145,71 +143,132 @@ public class ProjetPortable extends JFrame implements ActionListener {
 	public static void test() {
 		try {
 			String contenu = "";
-			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/pioche.html");
+			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/baguette.html");
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null)
 				contenu+=inputLine;
 			in.close();
-			//début d'item
-			contenu = contenu.substring(contenu.indexOf("<form class=\"item\" id="));
-			contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
-			int fin = contenu.indexOf("&nbsp");
-			String nomObjet = contenu.substring(0,fin);
-			System.out.println("Nom objet : "+nomObjet);
-			contenu = contenu.substring(contenu.indexOf("<span>")+6);//juste avant le type
-			String typeObjet = contenu.substring(0,contenu.indexOf(" "));
-			System.out.println("Type objet : "+typeObjet);
-			contenu = contenu.substring(contenu.indexOf("Niveau ")+7);//juste avant le niveau
-			String lvlObjet = contenu.substring(0,contenu.indexOf("<"));
-			System.out.println("Niveau objet : "+lvlObjet);
-			contenu = contenu.substring(contenu.indexOf("relative'><img src=")+20);//juste avant l'image
-			String imgObjet = contenu.substring(0,contenu.indexOf("\""));
-			System.out.println("Image objet : "+imgObjet);
-			String minDom;
-			String maxDom;
-			String typeDom;
-			contenu = contenu.substring(contenu.indexOf("Effets")+6);//début des dommages et caracs.
-			if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
-					typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
-				int rangeHR = contenu.indexOf("<hr");
-				contenu = contenu.substring(contenu.indexOf("\">")+2);
-				int suivant;
-				do{
-					minDom = contenu.substring(0,contenu.indexOf(" "));
-					contenu = contenu.substring(contenu.indexOf(" à ")+3);
-					maxDom = contenu.substring(0,contenu.indexOf(" "));
-					contenu = contenu.substring(contenu.indexOf("dommages ")+9);
-					typeDom = contenu.substring(0,contenu.indexOf(")"));
-					suivant = contenu.indexOf("<span");
-					System.out.println("min Dom : "+minDom);
-					System.out.println("max Dom : "+maxDom);
-					System.out.println("type Dom : "+typeDom);
-				}while(suivant != -1 && suivant < rangeHR);
-				contenu = contenu.substring(contenu.indexOf("hr"));//On quitte les dommages
-			}
-			int indexDiv = contenu.indexOf("</div>");
-			int indexSpan = contenu.indexOf("span");
-			String minCarac;
-			String maxCarac;
-			String typeCarac;
-			while( indexSpan != -1 && indexSpan < indexDiv){
-				//TODO gérer les caracs si il y en a. (test si l'index est inférieur ou non)
-				contenu = contenu.substring(contenu.indexOf("span"));//On passe le span
+			int cpt = 0;
+			do{
+				//début d'item
+				contenu = contenu.substring(contenu.indexOf("<form class=\"item\" id="));
+				contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
+				int fin = contenu.indexOf("&nbsp");
+				String nomObjet = contenu.substring(0,fin);
+				System.out.println("Nom objet : "+nomObjet);
+				contenu = contenu.substring(contenu.indexOf("<span>")+6);//juste avant le type
+				String typeObjet = contenu.substring(0,contenu.indexOf(" "));
+				System.out.println("Type objet : "+typeObjet);
+				contenu = contenu.substring(contenu.indexOf("Niveau ")+7);//juste avant le niveau
+				String lvlObjet = contenu.substring(0,contenu.indexOf("<"));
+				System.out.println("Niveau objet : "+lvlObjet);
+				contenu = contenu.substring(contenu.indexOf("relative'><img src=")+20);//juste avant l'image
+				String imgObjet = contenu.substring(0,contenu.indexOf("\""));
+				System.out.println("Image objet : "+imgObjet);
+				String minDom;
+				String maxDom;
+				String typeDom;
+				contenu = contenu.substring(contenu.indexOf("Effets")+6);//début des dommages et caracs.
+				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
+						typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
+					do{
+						contenu = contenu.substring(contenu.indexOf("\">")+2);
+						minDom = contenu.substring(0,contenu.indexOf(" "));
+						contenu = contenu.substring(contenu.indexOf(" à ")+3);
+						maxDom = contenu.substring(0,contenu.indexOf(" "));
+						contenu = contenu.substring(contenu.indexOf("dommages ")+9);
+						typeDom = contenu.substring(0,contenu.indexOf(")"));
+						System.out.println("min Dom : "+minDom);
+						System.out.println("max Dom : "+maxDom);
+						System.out.println("type Dom : "+typeDom);
+					}while(contenu.indexOf("<span") != -1 && contenu.indexOf("<span") < contenu.indexOf("<hr"));
+					contenu = contenu.substring(contenu.indexOf("hr"));//On quitte les dommages
+				}
+				int indexDiv = contenu.indexOf("</div>");
+				int indexSpan = contenu.indexOf("<span");
+				String minCarac;
+				String maxCarac = "";
+				String typeCarac;
+				String PA;
+				String portee;
+				String bonusCC;
+				String chanceCC;
+				String frappe;
+				while( indexSpan != -1 && indexSpan < indexDiv){
+					boolean max = false;
+					contenu = contenu.substring(contenu.indexOf("<span"));//On passe le span
+					contenu = contenu.substring(contenu.indexOf(">")+1);
+					minCarac = contenu.substring(0,contenu.indexOf(" "));
+					if(contenu.indexOf(" à ") != 1 && contenu.indexOf(" à ") < contenu.indexOf("<br")){ // une seule valeure possible, pas de max
+						max = true;
+						contenu = contenu.substring(contenu.indexOf(" à ")+3);
+						maxCarac = contenu.substring(0,contenu.indexOf(" "));
+					}
+					contenu = contenu.substring(contenu.indexOf(" ")+1);
+					typeCarac = contenu.substring(0,contenu.indexOf("<"));
+					indexSpan = contenu.indexOf("<span");
+					indexDiv = contenu.indexOf("</div>");
+					if(max)
+						System.out.println("Carac : " + minCarac + " à " + maxCarac + " en " + typeCarac);
+					else
+						System.out.println("Carac : " + minCarac + " en " + typeCarac);
+				}
+				contenu = contenu.substring(contenu.indexOf("</div>")+6);
+				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
+						typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
+					contenu = contenu.substring(contenu.indexOf("Caracs")+6);
+					contenu = contenu.substring(contenu.indexOf("PA : ")+5);
+					PA = contenu.substring(0, contenu.indexOf("<"));
+					contenu = contenu.substring(contenu.indexOf("Portée : ")+9);
+					portee = contenu.substring(0, contenu.indexOf("<"));
+					contenu = contenu.substring(contenu.indexOf("CC : ")+5);
+					bonusCC = contenu.substring(0, contenu.indexOf("<"));
+					contenu = contenu.substring(contenu.indexOf("Critique : ")+11);
+					chanceCC = contenu.substring(0, contenu.indexOf("<"));
+					contenu = contenu.substring(contenu.indexOf("tour : ")+7);
+					frappe = contenu.substring(0, contenu.indexOf("<"));
+					System.out.println("PA : " + PA);
+					System.out.println("Portée : " + portee);
+					System.out.println("CC : " + bonusCC);
+					System.out.println("Critique : " + chanceCC);
+					System.out.println("Frapp / tour : " + frappe);
+				}
+				contenu = contenu.substring(contenu.indexOf("item-recette")+13);//début de la recette
+				String elementRecette;
+				while(contenu.indexOf("<br>") != -1 && contenu.indexOf("hide-min") > contenu.indexOf("<br>")){ // Ca veut dire que la recette est renseignée et qu'il reste encore un élément au moins
+					contenu = contenu.substring(contenu.indexOf("<br>")+4);
+					contenu = contenu.substring(contenu.indexOf("\"")+1);
+					elementRecette = contenu.substring(0, contenu.indexOf("\""));
+					System.out.println(elementRecette);
+				}
+				contenu = contenu.substring(contenu.indexOf("hide-min")+8);
+				contenu = contenu.substring(contenu.indexOf("Panoplie")+8);
 				contenu = contenu.substring(contenu.indexOf(">")+1);
-				minCarac = contenu.substring(0,contenu.indexOf(" "));
-				contenu = contenu.substring(contenu.indexOf(" à ")+3);
-				maxCarac = contenu.substring(0,contenu.indexOf(" "));
-				contenu = contenu.substring(contenu.indexOf(" ")+1);
-				typeCarac = contenu.substring(0,contenu.indexOf("<"));
-			}
-			contenu = contenu.substring(contenu.indexOf("</div>")+6);
-			System.out.println(contenu);
+				if(contenu.indexOf("<a") != -1 && contenu.indexOf("<a") < contenu.indexOf("<em"))
+					contenu = contenu.substring(contenu.indexOf(">")+1);
+				String panoplie = contenu.substring(0, contenu.indexOf("<"));
+				System.out.println("Pano : " + panoplie);
+				contenu = contenu.substring(contenu.indexOf("</div>")+6);
+				if(contenu.indexOf("item-info") != -1 && contenu.indexOf("item-actions") > contenu.indexOf("item-info")){//Il y a des prérequis ou des infos
+					if(contenu.indexOf("Pré-requis") != -1 && contenu.indexOf("Pré-requis") < contenu.indexOf("</div>")){ //il y a des pré-requis
+						contenu = contenu.substring(contenu.indexOf("Pré-requis")+10);
+						contenu = contenu.substring(contenu.indexOf(">")+1);
+						String prerequis = contenu.substring(0, contenu.indexOf("<"));
+						System.out.println("Pré requis : " + prerequis);
+					}
+				}
+				contenu = contenu.substring(contenu.indexOf("</form>")+7);
+				System.out.println("");
+				System.out.println("");
+				cpt++;
+			}while(contenu.indexOf("<form ") != -1);
 			
+			System.out.println("Nombre d'items récup : " +cpt);
 		} catch (MalformedURLException e) {
-			System.out.println(e);
+			System.err.println(e);
 		} catch (IOException e) {
-			System.out.println(e);
+			System.err.println(e);
 		}
 	}
 }
