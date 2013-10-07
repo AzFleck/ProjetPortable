@@ -117,6 +117,7 @@ insert into Type values (18, "Pioche");
 insert into Type values (19, "Baton");
 insert into Type values (20, "Baguette");
 insert into Type values (21, "Arc");
+insert into Type values (22, "Bouclier");
 
 
 -- -----------------------------------------------------
@@ -213,6 +214,22 @@ CREATE  TABLE IF NOT EXISTS `Race` (
   `idRace` INT NOT NULL ,
   `designation` VARCHAR(45) NOT NULL ,
   PRIMARY KEY (`idRace`) );
+  
+insert into Race values (1, "Cra");
+insert into Race values (2, "Sram");
+insert into Race values (3, "Ecaflip");
+insert into Race values (4, "Eniripsa");
+insert into Race values (5, "Enutrof");
+insert into Race values (6, "Feca");
+insert into Race values (7, "Sacrieur");
+insert into Race values (8, "Pandawa");
+insert into Race values (9, "Steamer");
+insert into Race values (10, "Roublard");
+insert into Race values (11, "Zobal");
+insert into Race values (12, "Sadida");
+insert into Race values (13, "Osamodas");
+insert into Race values (14, "Iop");
+insert into Race values (15, "Xelor");
 
 
 -- -----------------------------------------------------
@@ -239,6 +256,24 @@ CREATE  TABLE IF NOT EXISTS `Position` (
   `idPosition` INT NOT NULL ,
   `label` VARCHAR(45) NOT NULL ,
   PRIMARY KEY (`idPosition`) );
+  
+  
+insert into Position values (1, "Coiffe");
+insert into Position values (2, "Cape");
+insert into Position values (3, "Ceinture");
+insert into Position values (4, "Familier");
+insert into Position values (5, "Anneau1");
+insert into Position values (6, "Anneau2");
+insert into Position values (7, "Amulette");
+insert into Position values (8, "Bottes");
+insert into Position values (9, "Arme");
+insert into Position values (10, "Bouclier");
+insert into Position values (11, "Dofus1");
+insert into Position values (12, "Dofus2");
+insert into Position values (13, "Dofus3");
+insert into Position values (14, "Dofus4");
+insert into Position values (15, "Dofus5");
+insert into Position values (16, "Dofus6");
 
 
 -- -----------------------------------------------------
@@ -260,6 +295,41 @@ CREATE  TABLE IF NOT EXISTS `Position_has_Type` (
     REFERENCES `Type` (`idType` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+	
+	
+insert into Position_has_Type values (1, 1);
+insert into Position_has_Type values (2, 2);
+insert into Position_has_Type values (3, 3);
+insert into Position_has_Type values (4, 9);
+insert into Position_has_Type values (4, 10);
+insert into Position_has_Type values (4, 11);
+insert into Position_has_Type values (5, 5);
+insert into Position_has_Type values (6, 5);
+insert into Position_has_Type values (7, 6);
+insert into Position_has_Type values (8, 4);
+insert into Position_has_Type values (9, 12);
+insert into Position_has_Type values (9, 13);
+insert into Position_has_Type values (9, 14);
+insert into Position_has_Type values (9, 15);
+insert into Position_has_Type values (9, 16);
+insert into Position_has_Type values (9, 17);
+insert into Position_has_Type values (9, 18);
+insert into Position_has_Type values (9, 19);
+insert into Position_has_Type values (9, 20);
+insert into Position_has_Type values (9, 21);
+insert into Position_has_Type values (10, 22);
+insert into Position_has_Type values (11, 7);
+insert into Position_has_Type values (12, 7);
+insert into Position_has_Type values (13, 7);
+insert into Position_has_Type values (14, 7);
+insert into Position_has_Type values (15, 7);
+insert into Position_has_Type values (16, 7);
+insert into Position_has_Type values (11, 8);
+insert into Position_has_Type values (12, 8);
+insert into Position_has_Type values (13, 8);
+insert into Position_has_Type values (14, 8);
+insert into Position_has_Type values (15, 8);
+insert into Position_has_Type values (16, 8);
 
 
 -- -----------------------------------------------------
