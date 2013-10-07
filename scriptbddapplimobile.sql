@@ -50,6 +50,13 @@ insert into Caracteristique values (41, "Puissance");
 insert into Caracteristique values (42, "Dommage piège");
 insert into Caracteristique values (43, "Dommage % piège");
 
+-- -----------------------------------------------------
+-- Table `Panoplie`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Panoplie` (
+  `idPanoplie` INT NOT NULL,
+  `label` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idPanoplie`));
 
 -- -----------------------------------------------------
 -- Table `Element`
@@ -120,12 +127,20 @@ CREATE  TABLE IF NOT EXISTS `Objet` (
   `nom` VARCHAR(45) NOT NULL ,
   `image` VARCHAR(255) NOT NULL ,
   `niveau` INT NOT NULL ,
+  `recette` VARCHAR(150) NOT NULL,
   `Type_idType` INT NOT NULL ,
+  `Panoplie_idPanoplie` INT NOT NULL,
   PRIMARY KEY (`idObjet`) ,
   INDEX `fk_Objet_Type1_idx` (`Type_idType` ASC) ,
+  INDEX `fk_Objet_Panoplie1_idx` (`Panoplie_idPanoplie` ASC),
   CONSTRAINT `fk_Objet_Type1`
     FOREIGN KEY (`Type_idType` )
     REFERENCES `Type` (`idType` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Objet_Panoplie1`
+    FOREIGN KEY (`Panoplie_idPanoplie`)
+    REFERENCES `Panoplie` (`idPanoplie`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
@@ -138,10 +153,11 @@ CREATE  TABLE IF NOT EXISTS `ObjetPersonnalise` (
   `Objet_idObjet` INT NOT NULL ,
   `valeur` INT NOT NULL ,
   `Dommages_idDommages` INT NULL,
-  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`) ,
+  `Dommages_Element_idElement` INT NOT NULL,
+  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`, `Dommages_idDommages`, `Dommages_Element_idElement`),
   INDEX `fk_Caracteristique_has_Objet_Objet1_idx` (`Objet_idObjet` ASC) ,
   INDEX `fk_Caracteristique_has_Objet_Caracteristique_idx` (`Caracteristique_idCaracteristique` ASC) ,
-  INDEX `fk_ObjetPersonnalise_Dommages1_idx` (`Dommages_idDommages` ASC),
+  INDEX `fk_ObjetPersonnalise_Dommages1_idx` (`Dommages_idDommages` ASC, `Dommages_Element_idElement` ASC),
   CONSTRAINT `fk_Caracteristique_has_Objet_Caracteristique`
     FOREIGN KEY (`Caracteristique_idCaracteristique` )
     REFERENCES `Caracteristique` (`idCaracteristique` )
@@ -153,8 +169,8 @@ CREATE  TABLE IF NOT EXISTS `ObjetPersonnalise` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_ObjetPersonnalise_Dommages1`
-    FOREIGN KEY (`Dommages_idDommages`)
-    REFERENCES `Dommages` (`idDommages`)
+    FOREIGN KEY (`Dommages_idDommages` , `Dommages_Element_idElement`)
+    REFERENCES `Dommages` (`idDommages` , `Element_idElement`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
@@ -168,10 +184,11 @@ CREATE  TABLE IF NOT EXISTS `ObjetBasique` (
   `Minimum` INT NOT NULL ,
   `Maximum` INT NOT NULL ,
   `Dommages_idDommages` INT NULL,
-  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`) ,
+  `Dommages_Element_idElement` INT NOT NULL,
+  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`, `Dommages_idDommages`, `Dommages_Element_idElement`),
   INDEX `fk_Caracteristique_has_Objet1_Objet1_idx` (`Objet_idObjet` ASC) ,
   INDEX `fk_Caracteristique_has_Objet1_Caracteristique1_idx` (`Caracteristique_idCaracteristique` ASC) ,
-  INDEX `fk_ObjetBasique_Dommages1_idx` (`Dommages_idDommages` ASC),
+  INDEX `fk_ObjetBasique_Dommages1_idx` (`Dommages_idDommages` ASC, `Dommages_Element_idElement` ASC),
   CONSTRAINT `fk_Caracteristique_has_Objet1_Caracteristique1`
     FOREIGN KEY (`Caracteristique_idCaracteristique` )
     REFERENCES `Caracteristique` (`idCaracteristique` )
@@ -183,8 +200,8 @@ CREATE  TABLE IF NOT EXISTS `ObjetBasique` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_ObjetBasique_Dommages1`
-    FOREIGN KEY (`Dommages_idDommages`)
-    REFERENCES `Dommages` (`idDommages`)
+    FOREIGN KEY (`Dommages_idDommages` , `Dommages_Element_idElement`)
+    REFERENCES `Dommages` (`idDommages` , `Element_idElement`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
@@ -314,7 +331,7 @@ CREATE  TABLE IF NOT EXISTS `Race_has_Sort` (
 CREATE  TABLE IF NOT EXISTS `Caracteristique_has_Personnage` (
   `Caracteristique_idCaracteristique` INT NOT NULL ,
   `Personnage_idPersonnage` INT NOT NULL ,
-  `value` INT NOT NULL,
+  `valeur` INT NOT NULL,
   PRIMARY KEY (`Caracteristique_idCaracteristique`, `Personnage_idPersonnage`) ,
   INDEX `fk_Caracteristique_has_Personnage_Personnage1_idx` (`Personnage_idPersonnage` ASC) ,
   INDEX `fk_Caracteristique_has_Personnage_Caracteristique1_idx` (`Caracteristique_idCaracteristique` ASC) ,
@@ -328,3 +345,115 @@ CREATE  TABLE IF NOT EXISTS `Caracteristique_has_Personnage` (
     REFERENCES `Personnage` (`idPersonnage` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+	
+
+-- -----------------------------------------------------
+-- Table `Condition`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Condition` (
+  `idCondition` INT NOT NULL,
+  `label` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idCondition`));
+
+
+-- -----------------------------------------------------
+-- Table `Objet_has_Condition`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Objet_has_Condition` (
+  `Objet_idObjet` INT NOT NULL,
+  `Condition_idCondition` INT NOT NULL,
+  PRIMARY KEY (`Objet_idObjet`, `Condition_idCondition`),
+  INDEX `fk_Objet_has_Condition_Condition1_idx` (`Condition_idCondition` ASC),
+  INDEX `fk_Objet_has_Condition_Objet1_idx` (`Objet_idObjet` ASC),
+  CONSTRAINT `fk_Objet_has_Condition_Objet1`
+    FOREIGN KEY (`Objet_idObjet`)
+    REFERENCES `Objet` (`idObjet`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Objet_has_Condition_Condition1`
+    FOREIGN KEY (`Condition_idCondition`)
+    REFERENCES `Condition` (`idCondition`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `Critere`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Critere` (
+  `idCritere` INT NOT NULL,
+  `pa` INT NOT NULL,
+  `portee` VARCHAR(45) NOT NULL,
+  `bonuscc` VARCHAR(45) NOT NULL,
+  `chancecc` VARCHAR(45) NOT NULL,
+  `nbpartour` INT NOT NULL,
+  PRIMARY KEY (`idCritere`));
+
+
+-- -----------------------------------------------------
+-- Table `bdd`.`Critere_has_Objet`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Critere_has_Objet` (
+  `Critere_idCritere` INT NOT NULL,
+  `Objet_idObjet` INT NOT NULL,
+  PRIMARY KEY (`Critere_idCritere`, `Objet_idObjet`),
+  INDEX `fk_Critere_has_Objet_Objet1_idx` (`Objet_idObjet` ASC),
+  INDEX `fk_Critere_has_Objet_Critere1_idx` (`Critere_idCritere` ASC),
+  CONSTRAINT `fk_Critere_has_Objet_Critere1`
+    FOREIGN KEY (`Critere_idCritere`)
+    REFERENCES `Critere` (`idCritere`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Critere_has_Objet_Objet1`
+    FOREIGN KEY (`Objet_idObjet`)
+    REFERENCES `Objet` (`idObjet`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `bdd`.`Race_has_Caracteristique`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Race_has_Caracteristique` (
+  `Race_idRace` INT NOT NULL,
+  `Caracteristique_idCaracteristique` INT NOT NULL,
+  `palier1` VARCHAR(45) NULL,
+  `palier2` VARCHAR(45) NULL,
+  `palier3` VARCHAR(45) NULL,
+  `palier4` VARCHAR(45) NULL,
+  PRIMARY KEY (`Race_idRace`, `Caracteristique_idCaracteristique`),
+  INDEX `fk_Race_has_Caracteristique_Caracteristique1_idx` (`Caracteristique_idCaracteristique` ASC),
+  INDEX `fk_Race_has_Caracteristique_Race1_idx` (`Race_idRace` ASC),
+  CONSTRAINT `fk_Race_has_Caracteristique_Race1`
+    FOREIGN KEY (`Race_idRace`)
+    REFERENCES `Race` (`idRace`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Race_has_Caracteristique_Caracteristique1`
+    FOREIGN KEY (`Caracteristique_idCaracteristique`)
+    REFERENCES `Caracteristique` (`idCaracteristique`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `bdd`.`Parchemin`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Parchemin` (
+  `Caracteristique_idCaracteristique` INT NOT NULL,
+  `Personnage_idPersonnage` INT NOT NULL,
+  `valeur` INT NOT NULL,
+  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Personnage_idPersonnage`),
+  INDEX `fk_Caracteristique_has_Personnage1_Personnage1_idx` (`Personnage_idPersonnage` ASC),
+  INDEX `fk_Caracteristique_has_Personnage1_Caracteristique1_idx` (`Caracteristique_idCaracteristique` ASC),
+  CONSTRAINT `fk_Caracteristique_has_Personnage1_Caracteristique1`
+    FOREIGN KEY (`Caracteristique_idCaracteristique`)
+    REFERENCES `Caracteristique` (`idCaracteristique`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Caracteristique_has_Personnage1_Personnage1`
+    FOREIGN KEY (`Personnage_idPersonnage`)
+    REFERENCES `Personnage` (`idPersonnage`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+

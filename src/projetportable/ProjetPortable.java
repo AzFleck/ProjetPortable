@@ -94,7 +94,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				liste_carac.add(result.getString(2));
 			}
 		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
+			System.err.println(ex.getMessage());
 		}
 	}
 	public void rempli_liste_type(){
@@ -109,7 +109,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				type.addItem(result.getString(2));
 			}
 		} catch (Exception ex) {
-			System.out.println("erreur dans la récupération des types d'item");
+			System.err.println("erreur dans la récupération des types d'item");
 		}
 	}
 	public void rempli_combos(){
@@ -169,7 +169,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			System.out.println(requete);
 			ProjetPortable.ecrireFinFichier(requete);
 		} catch (Exception ex) {
-			System.out.println("erreur dans la récup des types");
+			System.err.println("erreur dans la récup des types");
 			System.err.println(ex.getMessage());
 		}
 	}
