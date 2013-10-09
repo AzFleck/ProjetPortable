@@ -155,21 +155,45 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		}
 	}
 	
-	public static void insertObjet(String nom, String image, String niveau, String type){
-		String req = "Select idType from type where designation = \"" + type + "\"";
+	public static void insertObjet(String nom, String image, String niveau, String recette, String type, String panoplie){
+		if(recette.isEmpty()){
+			recette = "Inconnue/Incraftable";
+		}
+		panoplie = panoplie.trim(); // retrait des espaces
+		String reqtype = "Select idType from type where designation = \"" + type + "\"";
+		String reqpano = "Select idPanoplie from Panoplie where label = \"" + panoplie + "\"";
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "");
-			Statement st = con.createStatement();
-			ResultSet result = st.executeQuery(req);
-			result.next();
-			int idType = result.getInt(1);
-			String requete = "insert into objet(idObjet, nom, image, niveau, idType) "
-					+ "values (1, \""+nom+"\", \""+image+"\", "+niveau+", "+idType+")";
+			Statement sttype = con.createStatement();
+			ResultSet resulttype = sttype.executeQuery(reqtype);
+			resulttype.next();
+			int idType = resulttype.getInt(1);
+			String requete;
+			if(!panoplie.equals("Aucune")){
+				Statement stpano = con.createStatement();
+				ResultSet resultpano = stpano.executeQuery(reqpano);
+				int idPano;
+				if(resultpano.next()){
+					idPano = resultpano.getInt(1);
+				}
+				else{
+					//TODO Récupérer le max de la base de données
+					String requetePanoplie = "insert into Panoplie(idpanoplie, label) values (1, \""+panoplie+"\" )";
+					ProjetPortable.ecrireFinFichier(requetePanoplie);
+					idPano = 1;
+				}
+				requete = "insert into objet(idObjet, nom, image, niveau, recette, idType, Panoplie_idPanoplie) "
+					+ "values (1, \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+", "+idPano+" )";
+			}
+			else{
+				requete = "insert into objet(idObjet, nom, image, niveau, recette, idType) "
+					+ "values (1, \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+" )";
+			}
 			System.out.println(requete);
 			ProjetPortable.ecrireFinFichier(requete);
 		} catch (Exception ex) {
-			System.err.println("erreur dans la récup des types");
+			System.err.println("erreur dans la récup des types ou des panos");
 			System.err.println(ex.getMessage());
 		}
 	}
@@ -177,7 +201,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 	public static void test() {
 		try {
 			String contenu = "";
-			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/baguette.html");
+			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/anneau.html");
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null)
@@ -196,7 +220,6 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				String lvlObjet = contenu.substring(0,contenu.indexOf("<"));
 				contenu = contenu.substring(contenu.indexOf("relative'><img src=")+20);//juste avant l'image
 				String imgObjet = contenu.substring(0,contenu.indexOf("\""));
-				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, typeObjet);
 				String minDom;
 				String maxDom;
 				String typeDom;
@@ -265,21 +288,28 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					System.out.println("Critique : " + chanceCC);
 					System.out.println("Frapp / tour : " + frappe);
 				}
+				
+			//Partie recette
 				contenu = contenu.substring(contenu.indexOf("item-recette")+13);//début de la recette
-				String elementRecette;
-				while(contenu.indexOf("<br>") != -1 && contenu.indexOf("hide-min") > contenu.indexOf("<br>")){ // Ca veut dire que la recette est renseignée et qu'il reste encore un élément au moins
-					contenu = contenu.substring(contenu.indexOf("<br>")+4);
-					contenu = contenu.substring(contenu.indexOf("\"")+1);
-					elementRecette = contenu.substring(0, contenu.indexOf("\""));
-					System.out.println(elementRecette);
+				String elementRecette = "";
+				while(contenu.indexOf("<br") != -1 && contenu.indexOf("hide-min") > contenu.indexOf("<br")){ // Ca veut dire que la recette est renseignée et qu'il reste encore un élément au moins
+					contenu = contenu.substring(contenu.indexOf("<br")+3);
+					contenu = contenu.substring(contenu.indexOf(">")+1);
+					elementRecette += contenu.substring(0, contenu.indexOf("<"))+" / ";
 				}
+				if(!elementRecette.equals("")){
+					elementRecette = elementRecette.substring(0, elementRecette.length()-3);
+				}
+			//Partie recette END
+			//Partie Panoplie
 				contenu = contenu.substring(contenu.indexOf("hide-min")+8);
 				contenu = contenu.substring(contenu.indexOf("Panoplie")+8);
 				contenu = contenu.substring(contenu.indexOf(">")+1);
 				if(contenu.indexOf("<a") != -1 && contenu.indexOf("<a") < contenu.indexOf("<em"))
 					contenu = contenu.substring(contenu.indexOf(">")+1);
 				String panoplie = contenu.substring(0, contenu.indexOf("<"));
-				System.out.println("Pano : " + panoplie);
+			//Partie Panoplie END
+				
 				contenu = contenu.substring(contenu.indexOf("</div>")+6);
 				if(contenu.indexOf("item-info") != -1 && contenu.indexOf("item-actions") > contenu.indexOf("item-info")){//Il y a des prérequis ou des infos
 					if(contenu.indexOf("Pré-requis") != -1 && contenu.indexOf("Pré-requis") < contenu.indexOf("</div>")){ //il y a des pré-requis
@@ -293,6 +323,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				System.out.println("");
 				System.out.println("");
 				cpt++;
+				
+				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie);
 			}while(contenu.indexOf("<form ") != -1);
 			
 			System.out.println("Nombre d'items récup : " +cpt);
