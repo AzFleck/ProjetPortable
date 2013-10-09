@@ -7,11 +7,11 @@ CREATE  TABLE IF NOT EXISTS Caracteristique (
   PRIMARY KEY (`idCaracteristique`) );
   
 insert into Caracteristique values (1, "Vitalité");
-insert into Caracteristique values (2, "Force");
-insert into Caracteristique values (3, "Intelligence");
-insert into Caracteristique values (4, "Chance");
-insert into Caracteristique values (5, "Agilité");
-insert into Caracteristique values (6, "Sagesse");
+insert into Caracteristique values (2, "Sagesse");
+insert into Caracteristique values (3, "Force");
+insert into Caracteristique values (4, "Intelligence");
+insert into Caracteristique values (5, "Chance");
+insert into Caracteristique values (6, "Agilité");
 insert into Caracteristique values (7, "PA");
 insert into Caracteristique values (8, "PM");
 insert into Caracteristique values (9, "PO");
@@ -504,6 +504,130 @@ CREATE TABLE IF NOT EXISTS `Race_has_Caracteristique` (
     REFERENCES `Caracteristique` (`idCaracteristique`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+
+-- Vitalité (soucis du sacri mais on le gère pas dans le sql au pire)
+insert into Race_has_Caracteristique values (1,1,null,null,null,null);
+insert into Race_has_Caracteristique values (2,1,null,null,null,null);
+insert into Race_has_Caracteristique values (3,1,null,null,null,null);
+insert into Race_has_Caracteristique values (4,1,null,null,null,null);
+insert into Race_has_Caracteristique values (5,1,null,null,null,null);
+insert into Race_has_Caracteristique values (6,1,null,null,null,null);
+insert into Race_has_Caracteristique values (7,1,null,null,null,null);
+insert into Race_has_Caracteristique values (8,1,null,null,null,null);
+insert into Race_has_Caracteristique values (9,1,null,null,null,null);
+insert into Race_has_Caracteristique values (10,1,null,null,null,null);
+insert into Race_has_Caracteristique values (11,1,null,null,null,null);
+insert into Race_has_Caracteristique values (12,1,null,null,null,null);
+insert into Race_has_Caracteristique values (13,1,null,null,null,null);
+insert into Race_has_Caracteristique values (14,1,null,null,null,null);
+insert into Race_has_Caracteristique values (15,1,null,null,null,null);
+
+-- Sagesse 
+insert into Race_has_Caracteristique values (1,2,0,0,null,null);
+insert into Race_has_Caracteristique values (2,2,0,0,null,null);
+insert into Race_has_Caracteristique values (3,2,0,0,null,null);
+insert into Race_has_Caracteristique values (4,2,0,0,null,null);
+insert into Race_has_Caracteristique values (5,2,0,0,null,null);
+insert into Race_has_Caracteristique values (6,2,0,0,null,null);
+insert into Race_has_Caracteristique values (7,2,0,0,null,null);
+insert into Race_has_Caracteristique values (8,2,0,0,null,null);
+insert into Race_has_Caracteristique values (9,2,0,0,null,null);
+insert into Race_has_Caracteristique values (10,2,0,0,null,null);
+insert into Race_has_Caracteristique values (11,2,0,0,null,null);
+insert into Race_has_Caracteristique values (12,2,0,0,null,null);
+insert into Race_has_Caracteristique values (13,2,0,0,null,null);
+insert into Race_has_Caracteristique values (14,2,0,0,null,null);
+insert into Race_has_Caracteristique values (15,2,0,0,null,null);
+
+-- Cra
+insert into Race_has_Caracteristique values (1,3,51,151,251,351);
+insert into Race_has_Caracteristique values (1,4,51,151,251,351);
+insert into Race_has_Caracteristique values (1,5,21,41,61,81);
+insert into Race_has_Caracteristique values (1,6,51,101,151,201);
+
+-- Sram
+insert into Race_has_Caracteristique values (2,3,101,201,301,401);
+insert into Race_has_Caracteristique values (2,4,0,51,151,251);
+insert into Race_has_Caracteristique values (2,5,21,41,61,81);
+insert into Race_has_Caracteristique values (2,6,101,201,301,401);
+
+-- Ecaflip
+insert into Race_has_Caracteristique values (3,3,101,201,301,401);
+insert into Race_has_Caracteristique values (3,4,21,41,61,81);
+insert into Race_has_Caracteristique values (3,5,21,41,61,81);
+insert into Race_has_Caracteristique values (3,6,51,101,151,201);
+
+-- Eniripsa
+insert into Race_has_Caracteristique values (4,3,0,51,151,251);
+insert into Race_has_Caracteristique values (4,4,101,201,301,401);
+insert into Race_has_Caracteristique values (4,5,21,41,61,81);
+insert into Race_has_Caracteristique values (4,6,21,41,61,81);
+
+-- Enutrof
+insert into Race_has_Caracteristique values (5,3,51,151,251,351);
+insert into Race_has_Caracteristique values (5,4,21,61,101,141);
+insert into Race_has_Caracteristique values (5,5,101,151,231,331);
+insert into Race_has_Caracteristique values (5,6,21,41,61,81);
+
+-- Feca
+insert into Race_has_Caracteristique values (6,3,0,51,151,251);
+insert into Race_has_Caracteristique values (6,4,101,201,301,401);
+insert into Race_has_Caracteristique values (6,5,21,41,61,81);
+insert into Race_has_Caracteristique values (6,6,21,41,61,81);
+
+-- Sacrieur
+insert into Race_has_Caracteristique values (7,3,0,0,101,151);
+insert into Race_has_Caracteristique values (7,4,0,0,101,151);
+insert into Race_has_Caracteristique values (7,5,0,0,101,151);
+insert into Race_has_Caracteristique values (7,6,0,0,101,151);
+
+-- Pandawa
+insert into Race_has_Caracteristique values (8,3,51,201,null,null);
+insert into Race_has_Caracteristique values (8,4,51,201,null,null);
+insert into Race_has_Caracteristique values (8,5,51,201,null,null);
+insert into Race_has_Caracteristique values (8,6,51,201,null,null);
+
+-- Steamer
+insert into Race_has_Caracteristique values (9,3,51,201,null,null);
+insert into Race_has_Caracteristique values (9,4,51,201,null,null);
+insert into Race_has_Caracteristique values (9,5,51,201,null,null);
+insert into Race_has_Caracteristique values (9,6,51,201,null,null);
+
+-- Roublard
+insert into Race_has_Caracteristique values (10,3,51,201,null,null);
+insert into Race_has_Caracteristique values (10,4,51,201,null,null);
+insert into Race_has_Caracteristique values (10,5,51,201,null,null);
+insert into Race_has_Caracteristique values (10,6,51,201,null,null);
+
+-- Zobal
+insert into Race_has_Caracteristique values (11,3,100,200,300,400);
+insert into Race_has_Caracteristique values (11,4,100,200,300,400);
+insert into Race_has_Caracteristique values (11,5,100,200,300,400);
+insert into Race_has_Caracteristique values (11,6,100,200,300,400);
+
+-- Sadida
+insert into Race_has_Caracteristique values (12,3,51,251,301,401);
+insert into Race_has_Caracteristique values (12,4,101,201,301,401);
+insert into Race_has_Caracteristique values (12,5,101,201,301,401);
+insert into Race_has_Caracteristique values (12,6,21,41,61,81);
+
+-- Osamodas
+insert into Race_has_Caracteristique values (13,3,0,51,151,251);
+insert into Race_has_Caracteristique values (13,4,101,201,301,401);
+insert into Race_has_Caracteristique values (13,5,101,201,301,401);
+insert into Race_has_Caracteristique values (13,6,21,41,61,81);
+
+-- Iop
+insert into Race_has_Caracteristique values (14,3,101,201,301,401);
+insert into Race_has_Caracteristique values (14,4,21,41,61,81);
+insert into Race_has_Caracteristique values (14,5,21,41,61,81);
+insert into Race_has_Caracteristique values (14,6,21,41,61,81);
+
+-- Xelor
+insert into Race_has_Caracteristique values (15,3,0,51,151,251);
+insert into Race_has_Caracteristique values (15,4,101,201,301,401);
+insert into Race_has_Caracteristique values (15,5,21,41,61,81);
+insert into Race_has_Caracteristique values (15,6,21,41,61,81);
 
 
 -- -----------------------------------------------------
