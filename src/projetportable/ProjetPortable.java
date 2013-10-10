@@ -155,7 +155,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		}
 	}
 	
-	public static void insertObjet(String nom, String image, String niveau, String recette, String type, String panoplie){
+	public static void insertObjet(String nom, String image, String niveau, String recette, String type, String panoplie, String prerequis){
+		int idObjet = 1; //TODO récup l'id maximum
 		if(recette.isEmpty()){
 			recette = "Inconnue/Incraftable";
 		}
@@ -178,20 +179,42 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					idPano = resultpano.getInt(1);
 				}
 				else{
-					//TODO Récupérer le max de la base de données
-					String requetePanoplie = "insert into Panoplie(idpanoplie, label) values (1, \""+panoplie+"\" )";
+					String reqpanoplie = "Select max(idpanoplie) from Panoplie";
+					Statement stpanoplie = con.createStatement();
+					ResultSet resultpanoplie = stpanoplie.executeQuery(reqpanoplie);
+					if(resultpanoplie.next()){
+						idPano = resultpanoplie.getInt(1) + 1;
+					}
+					else{
+						idPano = 1;
+					}
+					String requetePanoplie = "insert into Panoplie(idpanoplie, label) values ("+idPano+", \""+panoplie+"\" )";
 					ProjetPortable.ecrireFinFichier(requetePanoplie);
-					idPano = 1;
 				}
 				requete = "insert into objet(idObjet, nom, image, niveau, recette, idType, Panoplie_idPanoplie) "
-					+ "values (1, \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+", "+idPano+" )";
+					+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+", "+idPano+" )";
 			}
 			else{
 				requete = "insert into objet(idObjet, nom, image, niveau, recette, idType) "
-					+ "values (1, \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+" )";
+					+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+" )";
 			}
-			System.out.println(requete);
 			ProjetPortable.ecrireFinFichier(requete);
+			if(!prerequis.equals("0")){
+				int idCond;
+				String reqcondition = "Select max(idcondition) from `condition`";
+				Statement stcond = con.createStatement();
+				ResultSet resultcond = stcond.executeQuery(reqcondition);
+				if(resultcond.next()){
+					idCond = resultcond.getInt(1) + 1;
+				}
+				else{
+					idCond = 1;
+				}
+				String requeteCond = "insert into Condition(idcondition, label) values ("+idCond+", \""+prerequis+"\" )";
+				ProjetPortable.ecrireFinFichier(requeteCond);
+				String requeteCondObjet = "insert into Objet_has_Condition(Objet_idObjet, Condition_idCondition) values ("+idObjet+", "+idCond+" )";
+				ProjetPortable.ecrireFinFichier(requeteCondObjet);
+			}
 		} catch (Exception ex) {
 			System.err.println("erreur dans la récup des types ou des panos");
 			System.err.println(ex.getMessage());
@@ -201,7 +224,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 	public static void test() {
 		try {
 			String contenu = "";
-			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/anneau.html");
+			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/anneau-151-200.html");
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null)
@@ -309,22 +332,23 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					contenu = contenu.substring(contenu.indexOf(">")+1);
 				String panoplie = contenu.substring(0, contenu.indexOf("<"));
 			//Partie Panoplie END
-				
+			//Partie prerequis
+				String prerequis = "0";
 				contenu = contenu.substring(contenu.indexOf("</div>")+6);
 				if(contenu.indexOf("item-info") != -1 && contenu.indexOf("item-actions") > contenu.indexOf("item-info")){//Il y a des prérequis ou des infos
 					if(contenu.indexOf("Pré-requis") != -1 && contenu.indexOf("Pré-requis") < contenu.indexOf("</div>")){ //il y a des pré-requis
 						contenu = contenu.substring(contenu.indexOf("Pré-requis")+10);
 						contenu = contenu.substring(contenu.indexOf(">")+1);
-						String prerequis = contenu.substring(0, contenu.indexOf("<"));
-						System.out.println("Pré requis : " + prerequis);
+						prerequis = contenu.substring(0, contenu.indexOf("<"));
 					}
 				}
+			//Partie prerequis END
 				contenu = contenu.substring(contenu.indexOf("</form>")+7);
 				System.out.println("");
 				System.out.println("");
 				cpt++;
 				
-				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie);
+				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);
 			}while(contenu.indexOf("<form ") != -1);
 			
 			System.out.println("Nombre d'items récup : " +cpt);
