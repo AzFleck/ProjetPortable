@@ -109,7 +109,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				type.addItem(result.getString(2));
 			}
 		} catch (Exception ex) {
-			System.err.println("erreur dans la rÃ©cupÃ©ration des types d'item");
+			System.err.println("erreur dans la récupération des types d'item");
 		}
 	}
 	public void rempli_combos(){
@@ -133,8 +133,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		/*
-		 * RÃ©cupÃ©rer les Ã©lÃ©ments prÃ©sents dans les cases
-		 * Ouvrir le fichier puis Ã©crire la requÃªte Ã  la fin du fichier
+		 * Récupérer les éléments présents dans les cases
+		 * Ouvrir le fichier puis écrire la requéte à la fin du fichier
 		 * Vider les champs
 		 */
 		ProjetPortable.test();
