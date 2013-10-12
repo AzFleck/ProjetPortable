@@ -216,7 +216,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				ProjetPortable.ecrireFinFichier(requeteCondObjet);
 			}
 		} catch (Exception ex) {
-			System.err.println("erreur dans la rÃ©cup des types ou des panos");
+			System.err.println("erreur dans la récup des types ou des panos");
 			System.err.println(ex.getMessage());
 		}
 	}
@@ -277,9 +277,9 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					contenu = contenu.substring(contenu.indexOf("<span"));//On passe le span
 					contenu = contenu.substring(contenu.indexOf(">")+1);
 					minCarac = contenu.substring(0,contenu.indexOf(" "));
-					if(contenu.indexOf(" Ã  ") != 1 && contenu.indexOf(" Ã  ") < contenu.indexOf("<br")){ // une seule valeure possible, pas de max
+					if(contenu.indexOf(" à ") != -1 && contenu.indexOf(" à ") < contenu.indexOf("<br")){ // une seule valeure possible, pas de max
 						max = true;
-						contenu = contenu.substring(contenu.indexOf(" Ã  ")+3);
+						contenu = contenu.substring(contenu.indexOf(" à ")+3);
 						maxCarac = contenu.substring(0,contenu.indexOf(" "));
 					}
 					contenu = contenu.substring(contenu.indexOf(" ")+1);
@@ -287,12 +287,12 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					indexSpan = contenu.indexOf("<span");
 					indexDiv = contenu.indexOf("</div>");
 					if(max)
-						System.out.println("Carac : " + minCarac + " Ã  " + maxCarac + " en " + typeCarac);
+						System.out.println("Carac : " + minCarac + " à " + maxCarac + " en " + typeCarac);
 					else
 						System.out.println("Carac : " + minCarac + " en " + typeCarac);
 				}
 				contenu = contenu.substring(contenu.indexOf("</div>")+6);
-				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("BÃ¢ton")||typeObjet.equals("Dague")||typeObjet.equals("Ã‰pÃ©e")||
+				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Ã‰pÃ©e")||
 						typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
 					contenu = contenu.substring(contenu.indexOf("Caracs")+6);
 					contenu = contenu.substring(contenu.indexOf("PA : ")+5);
@@ -306,7 +306,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					contenu = contenu.substring(contenu.indexOf("tour : ")+7);
 					frappe = contenu.substring(0, contenu.indexOf("<"));
 					System.out.println("PA : " + PA);
-					System.out.println("PortÃ©e : " + portee);
+					System.out.println("Portée : " + portee);
 					System.out.println("CC : " + bonusCC);
 					System.out.println("Critique : " + chanceCC);
 					System.out.println("Frapp / tour : " + frappe);
@@ -336,8 +336,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				String prerequis = "0";
 				contenu = contenu.substring(contenu.indexOf("</div>")+6);
 				if(contenu.indexOf("item-info") != -1 && contenu.indexOf("item-actions") > contenu.indexOf("item-info")){//Il y a des prÃ©requis ou des infos
-					if(contenu.indexOf("PrÃ©-requis") != -1 && contenu.indexOf("PrÃ©-requis") < contenu.indexOf("</div>")){ //il y a des prÃ©-requis
-						contenu = contenu.substring(contenu.indexOf("PrÃ©-requis")+10);
+					if(contenu.indexOf("Pré-requis") != -1 && contenu.indexOf("Pré-requis") < contenu.indexOf("</div>")){ //il y a des prÃ©-requis
+						contenu = contenu.substring(contenu.indexOf("Pré-requis")+10);
 						contenu = contenu.substring(contenu.indexOf(">")+1);
 						prerequis = contenu.substring(0, contenu.indexOf("<"));
 					}
@@ -351,7 +351,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);
 			}while(contenu.indexOf("<form ") != -1);
 			
-			System.out.println("Nombre d'items rÃ©cup : " +cpt);
+			System.out.println("Nombre d'items récup : " +cpt);
 		} catch (MalformedURLException e) {
 			System.err.println(e);
 		} catch (IOException e) {
