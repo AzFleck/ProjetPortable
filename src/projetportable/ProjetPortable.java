@@ -252,7 +252,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					do{
 						contenu = contenu.substring(contenu.indexOf("\">")+2);
 						minDom = contenu.substring(0,contenu.indexOf(" "));
-						contenu = contenu.substring(contenu.indexOf(" Ã  ")+3);
+						contenu = contenu.substring(contenu.indexOf(" à  ")+3);
 						maxDom = contenu.substring(0,contenu.indexOf(" "));
 						contenu = contenu.substring(contenu.indexOf("dommages ")+9);
 						typeDom = contenu.substring(0,contenu.indexOf(")"));
@@ -297,7 +297,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					contenu = contenu.substring(contenu.indexOf("Caracs")+6);
 					contenu = contenu.substring(contenu.indexOf("PA : ")+5);
 					PA = contenu.substring(0, contenu.indexOf("<"));
-					contenu = contenu.substring(contenu.indexOf("PortÃ©e : ")+9);
+					contenu = contenu.substring(contenu.indexOf("PortÃée : ")+9);
 					portee = contenu.substring(0, contenu.indexOf("<"));
 					contenu = contenu.substring(contenu.indexOf("CC : ")+5);
 					bonusCC = contenu.substring(0, contenu.indexOf("<"));
