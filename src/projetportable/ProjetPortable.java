@@ -87,7 +87,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		String req = "Select * from caracteristique order by idcaracteristique";
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
 			Statement st = con.createStatement();
 			ResultSet result = st.executeQuery(req);
 			while (result.next()) {
@@ -101,7 +101,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		String req = "Select * from type order by idtype";
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
 			Statement st = con.createStatement();
 			ResultSet result = st.executeQuery(req);
 			while (result.next()) {
@@ -109,7 +109,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				type.addItem(result.getString(2));
 			}
 		} catch (Exception ex) {
-			System.err.println("erreur dans la récupération des types d'item");
+			System.err.println("erreur dans la rÃ©cupÃ©ration des types d'item");
 		}
 	}
 	public void rempli_combos(){
@@ -133,8 +133,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		/*
-		 * Récupérer les éléments présents dans les cases
-		 * Ouvrir le fichier puis écrire la requête à la fin du fichier
+		 * RÃ©cupÃ©rer les Ã©lÃ©ments prÃ©sents dans les cases
+		 * Ouvrir le fichier puis Ã©crire la requÃªte Ã  la fin du fichier
 		 * Vider les champs
 		 */
 		ProjetPortable.test();
@@ -165,7 +165,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		String reqpano = "Select idPanoplie from Panoplie where label = \"" + panoplie + "\"";
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
 			Statement sttype = con.createStatement();
 			ResultSet resulttype = sttype.executeQuery(reqtype);
 			resulttype.next();
@@ -216,7 +216,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				ProjetPortable.ecrireFinFichier(requeteCondObjet);
 			}
 		} catch (Exception ex) {
-			System.err.println("erreur dans la récup des types ou des panos");
+			System.err.println("erreur dans la rÃ©cup des types ou des panos");
 			System.err.println(ex.getMessage());
 		}
 	}
@@ -232,7 +232,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			in.close();
 			int cpt = 0;
 			do{
-				//début d'item
+				//dÃ©but d'item
 				contenu = contenu.substring(contenu.indexOf("<form class=\"item\" id="));
 				contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
 				int fin = contenu.indexOf("&nbsp");
@@ -246,13 +246,13 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				String minDom;
 				String maxDom;
 				String typeDom;
-				contenu = contenu.substring(contenu.indexOf("Effets")+6);//début des dommages et caracs.
-				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
+				contenu = contenu.substring(contenu.indexOf("Effets")+6);//dÃ©but des dommages et caracs.
+				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("BÃ¢ton")||typeObjet.equals("Dague")||typeObjet.equals("Ã‰pÃ©e")||
 						typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
 					do{
 						contenu = contenu.substring(contenu.indexOf("\">")+2);
 						minDom = contenu.substring(0,contenu.indexOf(" "));
-						contenu = contenu.substring(contenu.indexOf(" à ")+3);
+						contenu = contenu.substring(contenu.indexOf(" Ã  ")+3);
 						maxDom = contenu.substring(0,contenu.indexOf(" "));
 						contenu = contenu.substring(contenu.indexOf("dommages ")+9);
 						typeDom = contenu.substring(0,contenu.indexOf(")"));
@@ -277,9 +277,9 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					contenu = contenu.substring(contenu.indexOf("<span"));//On passe le span
 					contenu = contenu.substring(contenu.indexOf(">")+1);
 					minCarac = contenu.substring(0,contenu.indexOf(" "));
-					if(contenu.indexOf(" à ") != 1 && contenu.indexOf(" à ") < contenu.indexOf("<br")){ // une seule valeure possible, pas de max
+					if(contenu.indexOf(" Ã  ") != 1 && contenu.indexOf(" Ã  ") < contenu.indexOf("<br")){ // une seule valeure possible, pas de max
 						max = true;
-						contenu = contenu.substring(contenu.indexOf(" à ")+3);
+						contenu = contenu.substring(contenu.indexOf(" Ã  ")+3);
 						maxCarac = contenu.substring(0,contenu.indexOf(" "));
 					}
 					contenu = contenu.substring(contenu.indexOf(" ")+1);
@@ -287,17 +287,17 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					indexSpan = contenu.indexOf("<span");
 					indexDiv = contenu.indexOf("</div>");
 					if(max)
-						System.out.println("Carac : " + minCarac + " à " + maxCarac + " en " + typeCarac);
+						System.out.println("Carac : " + minCarac + " Ã  " + maxCarac + " en " + typeCarac);
 					else
 						System.out.println("Carac : " + minCarac + " en " + typeCarac);
 				}
 				contenu = contenu.substring(contenu.indexOf("</div>")+6);
-				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
+				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("BÃ¢ton")||typeObjet.equals("Dague")||typeObjet.equals("Ã‰pÃ©e")||
 						typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
 					contenu = contenu.substring(contenu.indexOf("Caracs")+6);
 					contenu = contenu.substring(contenu.indexOf("PA : ")+5);
 					PA = contenu.substring(0, contenu.indexOf("<"));
-					contenu = contenu.substring(contenu.indexOf("Portée : ")+9);
+					contenu = contenu.substring(contenu.indexOf("PortÃ©e : ")+9);
 					portee = contenu.substring(0, contenu.indexOf("<"));
 					contenu = contenu.substring(contenu.indexOf("CC : ")+5);
 					bonusCC = contenu.substring(0, contenu.indexOf("<"));
@@ -306,16 +306,16 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					contenu = contenu.substring(contenu.indexOf("tour : ")+7);
 					frappe = contenu.substring(0, contenu.indexOf("<"));
 					System.out.println("PA : " + PA);
-					System.out.println("Portée : " + portee);
+					System.out.println("PortÃ©e : " + portee);
 					System.out.println("CC : " + bonusCC);
 					System.out.println("Critique : " + chanceCC);
 					System.out.println("Frapp / tour : " + frappe);
 				}
 				
 			//Partie recette
-				contenu = contenu.substring(contenu.indexOf("item-recette")+13);//début de la recette
+				contenu = contenu.substring(contenu.indexOf("item-recette")+13);//dÃ©but de la recette
 				String elementRecette = "";
-				while(contenu.indexOf("<br") != -1 && contenu.indexOf("hide-min") > contenu.indexOf("<br")){ // Ca veut dire que la recette est renseignée et qu'il reste encore un élément au moins
+				while(contenu.indexOf("<br") != -1 && contenu.indexOf("hide-min") > contenu.indexOf("<br")){ // Ca veut dire que la recette est renseignÃ©e et qu'il reste encore un Ã©lÃ©ment au moins
 					contenu = contenu.substring(contenu.indexOf("<br")+3);
 					contenu = contenu.substring(contenu.indexOf(">")+1);
 					elementRecette += contenu.substring(0, contenu.indexOf("<"))+" / ";
@@ -335,9 +335,9 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			//Partie prerequis
 				String prerequis = "0";
 				contenu = contenu.substring(contenu.indexOf("</div>")+6);
-				if(contenu.indexOf("item-info") != -1 && contenu.indexOf("item-actions") > contenu.indexOf("item-info")){//Il y a des prérequis ou des infos
-					if(contenu.indexOf("Pré-requis") != -1 && contenu.indexOf("Pré-requis") < contenu.indexOf("</div>")){ //il y a des pré-requis
-						contenu = contenu.substring(contenu.indexOf("Pré-requis")+10);
+				if(contenu.indexOf("item-info") != -1 && contenu.indexOf("item-actions") > contenu.indexOf("item-info")){//Il y a des prÃ©requis ou des infos
+					if(contenu.indexOf("PrÃ©-requis") != -1 && contenu.indexOf("PrÃ©-requis") < contenu.indexOf("</div>")){ //il y a des prÃ©-requis
+						contenu = contenu.substring(contenu.indexOf("PrÃ©-requis")+10);
 						contenu = contenu.substring(contenu.indexOf(">")+1);
 						prerequis = contenu.substring(0, contenu.indexOf("<"));
 					}
@@ -351,7 +351,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);
 			}while(contenu.indexOf("<form ") != -1);
 			
-			System.out.println("Nombre d'items récup : " +cpt);
+			System.out.println("Nombre d'items rÃ©cup : " +cpt);
 		} catch (MalformedURLException e) {
 			System.err.println(e);
 		} catch (IOException e) {
