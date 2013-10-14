@@ -160,7 +160,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		}
 	}
 	
-	public static void insertObjet(String nom, String image, String niveau, String recette, String type, String panoplie, String prerequis){
+	public static boolean insertObjet(String nom, String image, String niveau, String recette, String type, String panoplie, String prerequis){
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
@@ -169,7 +169,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			ResultSet resulttest = sttest.executeQuery(reqTestExist);
 			resulttest.next();
 			int test = resulttest.getInt(1);
-			if(test == 1){
+			if(test == 0){
 				int idObjet = 1; //TODO récup l'id maximum
 				if(recette.isEmpty()){
 					recette = "Inconnue/Incraftable";
@@ -226,10 +226,13 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					String requeteCondObjet = "insert into Objet_has_Condition(Objet_idObjet, Condition_idCondition) values ("+idObjet+", "+idCond+" );";
 					ProjetPortable.ecrireFinFichier(requeteCondObjet, con);
 				}
+				return true;
 			}
+			return false;
 		} catch (Exception ex) {
 			System.err.println("erreur dans la récup des types ou des panos");
 			System.err.println(ex.getMessage());
+			return false;
 		}
 	}
 	
@@ -396,8 +399,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				System.out.println("");
 				cpt++;
 				
-				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);
-				if(testDommage){
+				boolean exist = ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);//true si existait pas
+				if(testDommage && exist){
 					ProjetPortable.insertDommages(nomObjet, minDom, maxDom, typeDom);
 				}
 			}while(contenu.indexOf("<form ") != -1);
