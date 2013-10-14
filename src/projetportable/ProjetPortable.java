@@ -21,6 +21,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -140,7 +143,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		ProjetPortable.test();
 	}
 	
-	public static void ecrireFinFichier(String texte){
+	public static void ecrireFinFichier(String texte, Connection con){
 		FileWriter fw = null;
 		try {
 			fw = new FileWriter("insert.txt", true);
@@ -150,70 +153,79 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			output.write("\r\n");
 			output.flush();
 			output.close();
-		} catch (IOException ex) {
+			Statement stateEcriture = con.createStatement();
+			//stateEcriture.executeQuery(texte);
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
 	
 	public static void insertObjet(String nom, String image, String niveau, String recette, String type, String panoplie, String prerequis){
-		int idObjet = 1; //TODO récup l'id maximum
-		if(recette.isEmpty()){
-			recette = "Inconnue/Incraftable";
-		}
-		panoplie = panoplie.trim(); // retrait des espaces
-		String reqtype = "Select idType from type where designation = \"" + type + "\"";
-		String reqpano = "Select idPanoplie from Panoplie where label = \"" + panoplie + "\"";
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
-			Statement sttype = con.createStatement();
-			ResultSet resulttype = sttype.executeQuery(reqtype);
-			resulttype.next();
-			int idType = resulttype.getInt(1);
-			String requete;
-			if(!panoplie.equals("Aucune")){
-				Statement stpano = con.createStatement();
-				ResultSet resultpano = stpano.executeQuery(reqpano);
-				int idPano;
-				if(resultpano.next()){
-					idPano = resultpano.getInt(1);
+			String reqTestExist = "select count(*) from objet where nom = \"" + nom + "\"";
+			Statement sttest = con.createStatement();
+			ResultSet resulttest = sttest.executeQuery(reqTestExist);
+			resulttest.next();
+			int test = resulttest.getInt(1);
+			if(test == 1){
+				int idObjet = 1; //TODO récup l'id maximum
+				if(recette.isEmpty()){
+					recette = "Inconnue/Incraftable";
 				}
-				else{
-					String reqpanoplie = "Select max(idpanoplie) from Panoplie";
-					Statement stpanoplie = con.createStatement();
-					ResultSet resultpanoplie = stpanoplie.executeQuery(reqpanoplie);
-					if(resultpanoplie.next()){
-						idPano = resultpanoplie.getInt(1) + 1;
+				panoplie = panoplie.trim(); // retrait des espaces
+				String reqtype = "Select idType from type where designation = \"" + type + "\"";
+				String reqpano = "Select idPanoplie from Panoplie where label = \"" + panoplie + "\"";
+				Statement sttype = con.createStatement();
+				ResultSet resulttype = sttype.executeQuery(reqtype);
+				resulttype.next();
+				int idType = resulttype.getInt(1);
+				String requete;
+				if(!panoplie.equals("Aucune")){
+					Statement stpano = con.createStatement();
+					ResultSet resultpano = stpano.executeQuery(reqpano);
+					int idPano;
+					if(resultpano.next()){
+						idPano = resultpano.getInt(1);
 					}
 					else{
-						idPano = 1;
+						String reqpanoplie = "Select max(idpanoplie) from Panoplie";
+						Statement stpanoplie = con.createStatement();
+						ResultSet resultpanoplie = stpanoplie.executeQuery(reqpanoplie);
+						if(resultpanoplie.next()){
+							idPano = resultpanoplie.getInt(1) + 1;
+						}
+						else{
+							idPano = 1;
+						}
+						String requetePanoplie = "insert into Panoplie(idpanoplie, label) values ("+idPano+", \""+panoplie+"\" );";
+						ProjetPortable.ecrireFinFichier(requetePanoplie, con);
 					}
-					String requetePanoplie = "insert into Panoplie(idpanoplie, label) values ("+idPano+", \""+panoplie+"\" )";
-					ProjetPortable.ecrireFinFichier(requetePanoplie);
-				}
-				requete = "insert into objet(idObjet, nom, image, niveau, recette, idType, Panoplie_idPanoplie) "
-					+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+", "+idPano+" )";
-			}
-			else{
-				requete = "insert into objet(idObjet, nom, image, niveau, recette, idType) "
-					+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+" )";
-			}
-			ProjetPortable.ecrireFinFichier(requete);
-			if(!prerequis.equals("0")){
-				int idCond;
-				String reqcondition = "Select max(idcondition) from `condition`";
-				Statement stcond = con.createStatement();
-				ResultSet resultcond = stcond.executeQuery(reqcondition);
-				if(resultcond.next()){
-					idCond = resultcond.getInt(1) + 1;
+					requete = "insert into objet(idObjet, nom, image, niveau, recette, idType, Panoplie_idPanoplie) "
+						+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+", "+idPano+" );";
 				}
 				else{
-					idCond = 1;
+					requete = "insert into objet(idObjet, nom, image, niveau, recette, idType) "
+						+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+" );";
 				}
-				String requeteCond = "insert into Condition(idcondition, label) values ("+idCond+", \""+prerequis+"\" )";
-				ProjetPortable.ecrireFinFichier(requeteCond);
-				String requeteCondObjet = "insert into Objet_has_Condition(Objet_idObjet, Condition_idCondition) values ("+idObjet+", "+idCond+" )";
-				ProjetPortable.ecrireFinFichier(requeteCondObjet);
+				ProjetPortable.ecrireFinFichier(requete, con);
+				if(!prerequis.equals("0")){
+					int idCond;
+					String reqcondition = "Select max(idcondition) from `condition`";
+					Statement stcond = con.createStatement();
+					ResultSet resultcond = stcond.executeQuery(reqcondition);
+					if(resultcond.next()){
+						idCond = resultcond.getInt(1) + 1;
+					}
+					else{
+						idCond = 1;
+					}
+					String requeteCond = "insert into Condition(idcondition, label) values ("+idCond+", \""+prerequis+"\" );";
+					ProjetPortable.ecrireFinFichier(requeteCond, con);
+					String requeteCondObjet = "insert into Objet_has_Condition(Objet_idObjet, Condition_idCondition) values ("+idObjet+", "+idCond+" );";
+					ProjetPortable.ecrireFinFichier(requeteCondObjet, con);
+				}
 			}
 		} catch (Exception ex) {
 			System.err.println("erreur dans la récup des types ou des panos");
@@ -221,8 +233,34 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		}
 	}
 	
+	public static void insertDommages(String nomObjet, String min, String max, String type){
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
+			String reqEle = "select idElement from element where label = \"" + type + "\"";
+			Statement stateEle = con.createStatement();
+			ResultSet resultEle = stateEle.executeQuery(reqEle);
+			int idEle = 1;
+			int idDom = 1;
+			if(resultEle.next()){
+				idEle = resultEle.getInt(1) + 1;
+			}
+			String reqdom = "Select max(iddommages) from `dommages`";
+			Statement stdom = con.createStatement();
+			ResultSet resultdom = stdom.executeQuery(reqdom);
+			if(resultdom.next()){
+				idDom = resultdom.getInt(1) + 1;
+			}
+			String reqDom = "insert into Dommages(iddommages, min, max, element_idelement) values ("+idDom+", "+min+", "+max+", " + idEle + ");";
+			ProjetPortable.ecrireFinFichier(reqDom, con);
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
+		}
+	}
+	
 	public static void test() {
 		try {
+			boolean testDommage = false;
 			String contenu = "";
 			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/anneau-151-200.html");
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -232,7 +270,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			in.close();
 			int cpt = 0;
 			do{
-				//dÃ©but d'item
+			//début d'item
 				contenu = contenu.substring(contenu.indexOf("<form class=\"item\" id="));
 				contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
 				int fin = contenu.indexOf("&nbsp");
@@ -243,12 +281,15 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				String lvlObjet = contenu.substring(0,contenu.indexOf("<"));
 				contenu = contenu.substring(contenu.indexOf("relative'><img src=")+20);//juste avant l'image
 				String imgObjet = contenu.substring(0,contenu.indexOf("\""));
-				String minDom;
-				String maxDom;
-				String typeDom;
-				contenu = contenu.substring(contenu.indexOf("Effets")+6);//dÃ©but des dommages et caracs.
-				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("BÃ¢ton")||typeObjet.equals("Dague")||typeObjet.equals("Ã‰pÃ©e")||
+				String minDom = "";
+				String maxDom = "";
+				String typeDom = "";
+				contenu = contenu.substring(contenu.indexOf("Effets")+6);
+				
+			//début des dommages
+				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
 						typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
+					testDommage = true;
 					do{
 						contenu = contenu.substring(contenu.indexOf("\">")+2);
 						minDom = contenu.substring(0,contenu.indexOf(" "));
@@ -262,6 +303,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					}while(contenu.indexOf("<span") != -1 && contenu.indexOf("<span") < contenu.indexOf("<hr"));
 					contenu = contenu.substring(contenu.indexOf("hr"));//On quitte les dommages
 				}
+			//fin des dommages
 				int indexDiv = contenu.indexOf("</div>");
 				int indexSpan = contenu.indexOf("<span");
 				String minCarac;
@@ -272,6 +314,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				String bonusCC;
 				String chanceCC;
 				String frappe;
+				
+			//début des carac
 				while( indexSpan != -1 && indexSpan < indexDiv){
 					boolean max = false;
 					contenu = contenu.substring(contenu.indexOf("<span"));//On passe le span
@@ -291,13 +335,16 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					else
 						System.out.println("Carac : " + minCarac + " en " + typeCarac);
 				}
+			//fin des caracs
+				
+			//début des critères
 				contenu = contenu.substring(contenu.indexOf("</div>")+6);
 				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Ã‰pÃ©e")||
 						typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
 					contenu = contenu.substring(contenu.indexOf("Caracs")+6);
 					contenu = contenu.substring(contenu.indexOf("PA : ")+5);
 					PA = contenu.substring(0, contenu.indexOf("<"));
-					contenu = contenu.substring(contenu.indexOf("PortÃée : ")+9);
+					contenu = contenu.substring(contenu.indexOf("Portée : ")+9);
 					portee = contenu.substring(0, contenu.indexOf("<"));
 					contenu = contenu.substring(contenu.indexOf("CC : ")+5);
 					bonusCC = contenu.substring(0, contenu.indexOf("<"));
@@ -311,6 +358,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					System.out.println("Critique : " + chanceCC);
 					System.out.println("Frapp / tour : " + frappe);
 				}
+			//fin des critères
 				
 			//Partie recette
 				contenu = contenu.substring(contenu.indexOf("item-recette")+13);//dÃ©but de la recette
@@ -349,6 +397,9 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				cpt++;
 				
 				ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);
+				if(testDommage){
+					ProjetPortable.insertDommages(nomObjet, minDom, maxDom, typeDom);
+				}
 			}while(contenu.indexOf("<form ") != -1);
 			
 			System.out.println("Nombre d'items récup : " +cpt);

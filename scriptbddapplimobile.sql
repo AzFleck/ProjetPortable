@@ -153,12 +153,9 @@ CREATE  TABLE IF NOT EXISTS `ObjetPersonnalise` (
   `Caracteristique_idCaracteristique` INT NOT NULL ,
   `Objet_idObjet` INT NOT NULL ,
   `valeur` INT NOT NULL ,
-  `Dommages_idDommages` INT NULL,
-  `Dommages_Element_idElement` INT NOT NULL,
-  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`, `Dommages_idDommages`, `Dommages_Element_idElement`),
+  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`),
   INDEX `fk_Caracteristique_has_Objet_Objet1_idx` (`Objet_idObjet` ASC) ,
   INDEX `fk_Caracteristique_has_Objet_Caracteristique_idx` (`Caracteristique_idCaracteristique` ASC) ,
-  INDEX `fk_ObjetPersonnalise_Dommages1_idx` (`Dommages_idDommages` ASC, `Dommages_Element_idElement` ASC),
   CONSTRAINT `fk_Caracteristique_has_Objet_Caracteristique`
     FOREIGN KEY (`Caracteristique_idCaracteristique` )
     REFERENCES `Caracteristique` (`idCaracteristique` )
@@ -167,11 +164,6 @@ CREATE  TABLE IF NOT EXISTS `ObjetPersonnalise` (
   CONSTRAINT `fk_Caracteristique_has_Objet_Objet1`
     FOREIGN KEY (`Objet_idObjet` )
     REFERENCES `Objet` (`idObjet` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_ObjetPersonnalise_Dommages1`
-    FOREIGN KEY (`Dommages_idDommages` , `Dommages_Element_idElement`)
-    REFERENCES `Dommages` (`idDommages` , `Element_idElement`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
@@ -184,12 +176,9 @@ CREATE  TABLE IF NOT EXISTS `ObjetBasique` (
   `Objet_idObjet` INT NOT NULL ,
   `Minimum` INT NOT NULL ,
   `Maximum` INT NOT NULL ,
-  `Dommages_idDommages` INT NULL,
-  `Dommages_Element_idElement` INT NOT NULL,
-  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`, `Dommages_idDommages`, `Dommages_Element_idElement`),
+  PRIMARY KEY (`Caracteristique_idCaracteristique`, `Objet_idObjet`),
   INDEX `fk_Caracteristique_has_Objet1_Objet1_idx` (`Objet_idObjet` ASC) ,
   INDEX `fk_Caracteristique_has_Objet1_Caracteristique1_idx` (`Caracteristique_idCaracteristique` ASC) ,
-  INDEX `fk_ObjetBasique_Dommages1_idx` (`Dommages_idDommages` ASC, `Dommages_Element_idElement` ASC),
   CONSTRAINT `fk_Caracteristique_has_Objet1_Caracteristique1`
     FOREIGN KEY (`Caracteristique_idCaracteristique` )
     REFERENCES `Caracteristique` (`idCaracteristique` )
@@ -199,10 +188,20 @@ CREATE  TABLE IF NOT EXISTS `ObjetBasique` (
     FOREIGN KEY (`Objet_idObjet` )
     REFERENCES `Objet` (`idObjet` )
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_ObjetBasique_Dommages1`
+    ON UPDATE NO ACTION);
+	
+CREATE TABLE IF NOT EXISTS `Objet_has_Dommages` (
+	`Objet_idObjet` INT NOT NULL ,
+	`Dommages_idDommages` INT NULL,
+	`Dommages_Element_idElement` INT NOT NULL,
+  CONSTRAINT `fk_Objet_Dommages`
     FOREIGN KEY (`Dommages_idDommages` , `Dommages_Element_idElement`)
     REFERENCES `Dommages` (`idDommages` , `Element_idElement`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Objet_has_Dommages_Objet`
+    FOREIGN KEY (`Objet_idObjet` )
+    REFERENCES `Objet` (`idObjet` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
