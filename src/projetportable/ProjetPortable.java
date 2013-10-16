@@ -265,7 +265,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		try {
 			boolean testDommage = false;
 			String contenu = "";
-			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/anneau-151-200.html");
+			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/baguette-21-40.html");
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null)
@@ -296,7 +296,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					do{
 						contenu = contenu.substring(contenu.indexOf("\">")+2);
 						minDom = contenu.substring(0,contenu.indexOf(" "));
-						contenu = contenu.substring(contenu.indexOf(" à  ")+3);
+						contenu = contenu.substring(contenu.indexOf(" à ")+3);
 						maxDom = contenu.substring(0,contenu.indexOf(" "));
 						contenu = contenu.substring(contenu.indexOf("dommages ")+9);
 						typeDom = contenu.substring(0,contenu.indexOf(")"));
