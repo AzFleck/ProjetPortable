@@ -21,9 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.io.*;
 import java.net.*;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -236,17 +233,24 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		}
 	}
 	
-	public static void insertDommages(String nomObjet, String min, String max, String type){
+	public static int insertDommages(String nomObjet, String min, String max, String type){
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
 			String reqEle = "select idElement from element where label = \"" + type + "\"";
 			Statement stateEle = con.createStatement();
 			ResultSet resultEle = stateEle.executeQuery(reqEle);
+			String reqidobj = "select idObjet from objet where nom = \"" + nomObjet + "\"";
+			Statement stateidobj = con.createStatement();
+			ResultSet resultidobj = stateidobj.executeQuery(reqidobj);
 			int idEle = 1;
 			int idDom = 1;
+			int idObj = 1;
 			if(resultEle.next()){
-				idEle = resultEle.getInt(1) + 1;
+				idEle = resultEle.getInt(1);
+			}
+			if(resultidobj.next()){
+				idObj = resultidobj.getInt(1);
 			}
 			String reqdom = "Select max(iddommages) from `dommages`";
 			Statement stdom = con.createStatement();
@@ -256,6 +260,54 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			}
 			String reqDom = "insert into Dommages(iddommages, min, max, element_idelement) values ("+idDom+", "+min+", "+max+", " + idEle + ");";
 			ProjetPortable.ecrireFinFichier(reqDom, con);
+			String reqObjDom = "insert into Objet_has_Dommages(Objet_idObjet, Dommages_idDommages, Dommages_Element_idElement) values ("+idObj+", "+idDom+", "+idEle+");";
+			ProjetPortable.ecrireFinFichier(reqObjDom, con);
+			return idObj;
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
+			return 0;
+		}
+	}
+	
+	public static void insertCarac(int idObjet, String min, String max, String carac){
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
+			String reqCarac = "select idcaracteristique from caracteristique where label = \"" + carac + "\"";
+			Statement stateCarac = con.createStatement();
+			ResultSet resultCarac = stateCarac.executeQuery(reqCarac);
+			int idCarac = 1;
+			if(resultCarac.next()){
+				idCarac = resultCarac.getInt(1);
+			}
+			String reqObjBas;
+			if(max.equals("")){
+				reqObjBas = "insert into objetbasique(Caracteristique_idCaracteristique, Objet_idObjet, Minimum) values ("+idCarac+", "+idObjet+", "+min+");";
+			}
+			else{
+				reqObjBas = "insert into objetbasique(Caracteristique_idCaracteristique, Objet_idObjet, Minimum, Maximum) values ("+idCarac+", "+idObjet+", "+min+", " + max + ");";
+			}
+			ProjetPortable.ecrireFinFichier(reqObjBas, con);
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
+		}
+	}
+	
+	public static void insertCritere(int idObjet, String pa, String portee, String bonuscc, String chancecc, String nbpartour){
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
+			String reqcrit = "Select max(iddommages) from `dommages`";
+			Statement stcrit = con.createStatement();
+			ResultSet resultcrit = stcrit.executeQuery(reqcrit);
+			int idCrit = 1;
+			if(resultcrit.next()){
+				idCrit = resultcrit.getInt(1) + 1;
+			}
+			String reqCritere = "insert into critere(idCritere, pa, portee, bonuscc, chancecc, nbpartour) values ("+idCrit+", \""+pa+"\", \""+portee+"\", \"" + bonuscc + "\", \"" + chancecc + "\", " + nbpartour + ");";
+			ProjetPortable.ecrireFinFichier(reqCritere, con);
+			String reqCritObj = "insert into Critere_has_Objet(Critere_idCritere, Objet_idObjet) values ("+idCrit+", "+idObjet+");";
+			ProjetPortable.ecrireFinFichier(reqCritObj, con);
 		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
@@ -300,32 +352,28 @@ public class ProjetPortable extends JFrame implements ActionListener {
 						maxDom = contenu.substring(0,contenu.indexOf(" "));
 						contenu = contenu.substring(contenu.indexOf("dommages ")+9);
 						typeDom = contenu.substring(0,contenu.indexOf(")"));
-						System.out.println("min Dom : "+minDom);
-						System.out.println("max Dom : "+maxDom);
-						System.out.println("type Dom : "+typeDom);
 					}while(contenu.indexOf("<span") != -1 && contenu.indexOf("<span") < contenu.indexOf("<hr"));
 					contenu = contenu.substring(contenu.indexOf("hr"));//On quitte les dommages
 				}
 			//fin des dommages
 				int indexDiv = contenu.indexOf("</div>");
 				int indexSpan = contenu.indexOf("<span");
-				String minCarac;
+				String minCarac = "";
 				String maxCarac = "";
-				String typeCarac;
-				String PA;
-				String portee;
-				String bonusCC;
-				String chanceCC;
-				String frappe;
+				String typeCarac = "";
+				String PA = "";
+				String portee = "";
+				String bonusCC = "";
+				String chanceCC = "";
+				String frappe = "";
+				ArrayList<Carac> caracs = new ArrayList<Carac>();
 				
 			//début des carac
 				while( indexSpan != -1 && indexSpan < indexDiv){
-					boolean max = false;
 					contenu = contenu.substring(contenu.indexOf("<span"));//On passe le span
 					contenu = contenu.substring(contenu.indexOf(">")+1);
 					minCarac = contenu.substring(0,contenu.indexOf(" "));
 					if(contenu.indexOf(" à ") != -1 && contenu.indexOf(" à ") < contenu.indexOf("<br")){ // une seule valeure possible, pas de max
-						max = true;
 						contenu = contenu.substring(contenu.indexOf(" à ")+3);
 						maxCarac = contenu.substring(0,contenu.indexOf(" "));
 					}
@@ -333,16 +381,14 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					typeCarac = contenu.substring(0,contenu.indexOf("<"));
 					indexSpan = contenu.indexOf("<span");
 					indexDiv = contenu.indexOf("</div>");
-					if(max)
-						System.out.println("Carac : " + minCarac + " à " + maxCarac + " en " + typeCarac);
-					else
-						System.out.println("Carac : " + minCarac + " en " + typeCarac);
+					Carac c = new Carac(minCarac, maxCarac, typeCarac);
+					caracs.add(c);
 				}
 			//fin des caracs
 				
 			//début des critères
 				contenu = contenu.substring(contenu.indexOf("</div>")+6);
-				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Ã‰pÃ©e")||
+				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
 						typeObjet.equals("Hache")||typeObjet.equals("Marteau")||typeObjet.equals("Pelle")||typeObjet.equals("Faux")||typeObjet.equals("Pioche")){
 					contenu = contenu.substring(contenu.indexOf("Caracs")+6);
 					contenu = contenu.substring(contenu.indexOf("PA : ")+5);
@@ -355,11 +401,6 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					chanceCC = contenu.substring(0, contenu.indexOf("<"));
 					contenu = contenu.substring(contenu.indexOf("tour : ")+7);
 					frappe = contenu.substring(0, contenu.indexOf("<"));
-					System.out.println("PA : " + PA);
-					System.out.println("Portée : " + portee);
-					System.out.println("CC : " + bonusCC);
-					System.out.println("Critique : " + chanceCC);
-					System.out.println("Frapp / tour : " + frappe);
 				}
 			//fin des critères
 				
@@ -395,13 +436,18 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				}
 			//Partie prerequis END
 				contenu = contenu.substring(contenu.indexOf("</form>")+7);
-				System.out.println("");
-				System.out.println("");
 				cpt++;
 				
 				boolean exist = ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);//true si existait pas
 				if(testDommage && exist){
-					ProjetPortable.insertDommages(nomObjet, minDom, maxDom, typeDom);
+					int idObj = ProjetPortable.insertDommages(nomObjet, minDom, maxDom, typeDom);
+					if(idObj != 0){
+						for(int i = 0; i < caracs.size(); i++){
+							Carac c = caracs.get(i);
+							ProjetPortable.insertCarac(idObj, c.minCarac, c.maxCarac, c.typeCarac);
+						}
+						ProjetPortable.insertCritere(idObj, PA, portee, bonusCC, chanceCC, frappe);
+					}
 				}
 			}while(contenu.indexOf("<form ") != -1);
 			
