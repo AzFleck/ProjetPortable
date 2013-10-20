@@ -151,7 +151,21 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			output.flush();
 			output.close();
 			Statement stateEcriture = con.createStatement();
-			//stateEcriture.executeQuery(texte);
+			stateEcriture.executeUpdate(texte);
+		} catch (Exception ex) {
+			ProjetPortable.ecrireLog(ex.getMessage());
+		}
+	}
+	
+	public static void ecrireLog(String texte){
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter("logs.txt", true);
+			BufferedWriter output = new BufferedWriter(fw);
+			output.write(texte);
+			output.write("\r\n");
+			output.flush();
+			output.close();
 		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
@@ -167,7 +181,13 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			resulttest.next();
 			int test = resulttest.getInt(1);
 			if(test == 0){
-				int idObjet = 1; //TODO récup l'id maximum
+				String reqMaxObjet = "select max(idobjet) from objet";
+				Statement stmaxobj = con.createStatement();
+				ResultSet resultmaxobj = stmaxobj.executeQuery(reqMaxObjet);
+				int idObjet = 1;;
+				if(resultmaxobj.next()){
+					idObjet = resultmaxobj.getInt(1) +1;
+				}
 				if(recette.isEmpty()){
 					recette = "Inconnue/Incraftable";
 				}
@@ -199,12 +219,12 @@ public class ProjetPortable extends JFrame implements ActionListener {
 						String requetePanoplie = "insert into Panoplie(idpanoplie, label) values ("+idPano+", \""+panoplie+"\" );";
 						ProjetPortable.ecrireFinFichier(requetePanoplie, con);
 					}
-					requete = "insert into objet(idObjet, nom, image, niveau, recette, idType, Panoplie_idPanoplie) "
+					requete = "insert into objet(idObjet, nom, image, niveau, recette, Type_idType, Panoplie_idPanoplie) "
 						+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+", "+idPano+" );";
 				}
 				else{
-					requete = "insert into objet(idObjet, nom, image, niveau, recette, idType) "
-						+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+" );";
+					requete = "insert into objet(idObjet, nom, image, niveau, recette, Type_idType, Panoplie_idPanoplie) "
+						+ "values ("+idObjet+", \""+nom+"\", \""+image+"\", "+niveau+", \""+recette+"\", "+idType+", 0 );";
 				}
 				ProjetPortable.ecrireFinFichier(requete, con);
 				if(!prerequis.equals("0")){
@@ -218,7 +238,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					else{
 						idCond = 1;
 					}
-					String requeteCond = "insert into Condition(idcondition, label) values ("+idCond+", \""+prerequis+"\" );";
+					String requeteCond = "insert into `Condition`(idcondition, label) values ("+idCond+", \""+prerequis+"\" );";
 					ProjetPortable.ecrireFinFichier(requeteCond, con);
 					String requeteCondObjet = "insert into Objet_has_Condition(Objet_idObjet, Condition_idCondition) values ("+idObjet+", "+idCond+" );";
 					ProjetPortable.ecrireFinFichier(requeteCondObjet, con);
@@ -227,8 +247,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			}
 			return false;
 		} catch (Exception ex) {
-			System.err.println("erreur dans la récup des types ou des panos");
-			System.err.println(ex.getMessage());
+			ProjetPortable.ecrireLog("erreur dans la récup des types ou des panos");
+			ProjetPortable.ecrireLog(ex.getMessage());
 			return false;
 		}
 	}
@@ -264,7 +284,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			ProjetPortable.ecrireFinFichier(reqObjDom, con);
 			return idObj;
 		} catch (Exception ex) {
-			System.err.println(ex.getMessage());
+			ProjetPortable.ecrireLog(ex.getMessage());
 			return 0;
 		}
 	}
@@ -282,14 +302,14 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			}
 			String reqObjBas;
 			if(max.equals("")){
-				reqObjBas = "insert into objetbasique(Caracteristique_idCaracteristique, Objet_idObjet, Minimum) values ("+idCarac+", "+idObjet+", "+min+");";
+				reqObjBas = "insert into objetbasique(Caracteristique_idCaracteristique, Objet_idObjet, Minimum, Maximum) values ("+idCarac+", "+idObjet+", "+min+", "+min+");";
 			}
 			else{
 				reqObjBas = "insert into objetbasique(Caracteristique_idCaracteristique, Objet_idObjet, Minimum, Maximum) values ("+idCarac+", "+idObjet+", "+min+", " + max + ");";
 			}
 			ProjetPortable.ecrireFinFichier(reqObjBas, con);
 		} catch (Exception ex) {
-			System.err.println(ex.getMessage());
+			ProjetPortable.ecrireLog(ex.getMessage());
 		}
 	}
 	
@@ -309,7 +329,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			String reqCritObj = "insert into Critere_has_Objet(Critere_idCritere, Objet_idObjet) values ("+idCrit+", "+idObjet+");";
 			ProjetPortable.ecrireFinFichier(reqCritObj, con);
 		} catch (Exception ex) {
-			System.err.println(ex.getMessage());
+			ProjetPortable.ecrireLog(ex.getMessage());
 		}
 	}
 	
@@ -317,8 +337,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		try {
 			boolean testDommage = false;
 			String contenu = "";
-			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/baguette-21-40.html");
-			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/arc-151-200.html");
+			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), "UTF8"));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null)
 				contenu+=inputLine;
@@ -405,7 +425,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			//fin des critères
 				
 			//Partie recette
-				contenu = contenu.substring(contenu.indexOf("item-recette")+13);//dÃ©but de la recette
+				contenu = contenu.substring(contenu.indexOf("item-recette")+13);//début de la recette
 				String elementRecette = "";
 				while(contenu.indexOf("<br") != -1 && contenu.indexOf("hide-min") > contenu.indexOf("<br")){ // Ca veut dire que la recette est renseignÃ©e et qu'il reste encore un Ã©lÃ©ment au moins
 					contenu = contenu.substring(contenu.indexOf("<br")+3);
@@ -444,7 +464,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					if(idObj != 0){
 						for(int i = 0; i < caracs.size(); i++){
 							Carac c = caracs.get(i);
-							ProjetPortable.insertCarac(idObj, c.minCarac, c.maxCarac, c.typeCarac);
+							if(!c.minCarac.equals("Résistance"))
+								ProjetPortable.insertCarac(idObj, c.minCarac, c.maxCarac, c.typeCarac);
 						}
 						ProjetPortable.insertCritere(idObj, PA, portee, bonusCC, chanceCC, frappe);
 					}
@@ -452,10 +473,8 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			}while(contenu.indexOf("<form ") != -1);
 			
 			System.out.println("Nombre d'items récup : " +cpt);
-		} catch (MalformedURLException e) {
-			System.err.println(e);
-		} catch (IOException e) {
-			System.err.println(e);
+		} catch (Exception ex) {
+			ProjetPortable.ecrireLog(ex.getMessage());
 		}
 	}
 }

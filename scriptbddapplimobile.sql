@@ -128,7 +128,7 @@ CREATE  TABLE IF NOT EXISTS `Objet` (
   `nom` VARCHAR(45) NOT NULL ,
   `image` VARCHAR(255) NOT NULL ,
   `niveau` INT NOT NULL ,
-  `recette` VARCHAR(150) NOT NULL,
+  `recette` VARCHAR(255) NOT NULL,
   `Type_idType` INT NOT NULL ,
   `Panoplie_idPanoplie` INT NOT NULL,
   PRIMARY KEY (`idObjet`) ,

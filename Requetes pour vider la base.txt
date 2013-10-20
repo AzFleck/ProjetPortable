@@ -1,0 +1,9 @@
+
+DELETE FROM `critere_has_objet`;
+DELETE FROM `critere`;
+DELETE FROM `objet_has_dommages`;
+DELETE FROM `dommages`;
+DELETE FROM `objet_has_condition`;
+DELETE FROM `condition`;
+DELETE FROM `objetbasique`;
+DELETE FROM `objet`;
