@@ -151,7 +151,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			output.flush();
 			output.close();
 			Statement stateEcriture = con.createStatement();
-			stateEcriture.executeUpdate(texte);
+			//stateEcriture.executeUpdate(texte);
 		} catch (Exception ex) {
 			ProjetPortable.ecrireLog(ex.getMessage());
 		}
@@ -253,11 +253,11 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		}
 	}
 	
-	public static int insertDommages(String nomObjet, String min, String max, String type){
+	public static int insertDommages(String nomObjet, String min, String max, String element, String type){
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
-			String reqEle = "select idElement from element where label = \"" + type + "\"";
+			String reqEle = "select idElement from element where label = \"" + element + "\"";
 			Statement stateEle = con.createStatement();
 			ResultSet resultEle = stateEle.executeQuery(reqEle);
 			String reqidobj = "select idObjet from objet where nom = \"" + nomObjet + "\"";
@@ -278,7 +278,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			if(resultdom.next()){
 				idDom = resultdom.getInt(1) + 1;
 			}
-			String reqDom = "insert into Dommages(iddommages, min, max, element_idelement) values ("+idDom+", "+min+", "+max+", " + idEle + ");";
+			String reqDom = "insert into Dommages(iddommages, min, max, element_idelement, idTypeDom) values ("+idDom+", "+min+", "+max+", " + idEle + ", " + type + ");";
 			ProjetPortable.ecrireFinFichier(reqDom, con);
 			String reqObjDom = "insert into Objet_has_Dommages(Objet_idObjet, Dommages_idDommages, Dommages_Element_idElement) values ("+idObj+", "+idDom+", "+idEle+");";
 			ProjetPortable.ecrireFinFichier(reqObjDom, con);
@@ -350,6 +350,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				contenu = contenu.substring(contenu.indexOf("<h2>")+4);//juste avant le nom de l'objet
 				int fin = contenu.indexOf("&nbsp");
 				String nomObjet = contenu.substring(0,fin);
+				System.out.println(nomObjet);
 				contenu = contenu.substring(contenu.indexOf("<span>")+6);//juste avant le type
 				String typeObjet = contenu.substring(0,contenu.indexOf(" "));
 				contenu = contenu.substring(contenu.indexOf("Niveau ")+7);//juste avant le niveau
@@ -358,8 +359,10 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				String imgObjet = contenu.substring(0,contenu.indexOf("\""));
 				String minDom = "";
 				String maxDom = "";
+				String eleDom = "";
 				String typeDom = "";
 				contenu = contenu.substring(contenu.indexOf("Effets")+6);
+				ArrayList<Dommage> listdoms = new ArrayList<Dommage>();
 				
 			//début des dommages
 				if(typeObjet.equals("Arc")||typeObjet.equals("Baguette")||typeObjet.equals("Bâton")||typeObjet.equals("Dague")||typeObjet.equals("Épée")||
@@ -368,10 +371,26 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					do{
 						contenu = contenu.substring(contenu.indexOf("\">")+2);
 						minDom = contenu.substring(0,contenu.indexOf(" "));
-						contenu = contenu.substring(contenu.indexOf(" à ")+3);
-						maxDom = contenu.substring(0,contenu.indexOf(" "));
-						contenu = contenu.substring(contenu.indexOf("dommages ")+9);
-						typeDom = contenu.substring(0,contenu.indexOf(")"));
+						if(contenu.indexOf(" à ") != -1 && contenu.indexOf(" à ") < contenu.indexOf("dommages ") && contenu.indexOf(" à ") < contenu.indexOf("vol ")){
+							contenu = contenu.substring(contenu.indexOf(" à ")+3);
+							maxDom = contenu.substring(0,contenu.indexOf(" "));
+						}
+						else
+							maxDom = minDom;
+						if(contenu.indexOf("dommages ") != -1 && contenu.indexOf("dommages ") < contenu.indexOf(")")){
+							contenu = contenu.substring(contenu.indexOf("dommages ")+9);
+							typeDom = "1";
+						}else if(contenu.indexOf("vol ") != -1 && contenu.indexOf("vol ") < contenu.indexOf(")")){
+							contenu = contenu.substring(contenu.indexOf("vol ")+4);
+							typeDom = "2";
+						}else if(contenu.indexOf("PV rendus") != -1 && contenu.indexOf("PV rendus") < contenu.indexOf(")")){
+							contenu = contenu.substring(contenu.indexOf("(")+1);
+							typeDom = "3";
+						}else{
+							throw new Exception("problème dans l'évaluation des dommages");
+						}
+						eleDom = contenu.substring(0,contenu.indexOf(")"));
+						listdoms.add(new Dommage(nomObjet, minDom, maxDom, eleDom, typeDom));
 					}while(contenu.indexOf("<span") != -1 && contenu.indexOf("<span") < contenu.indexOf("<hr"));
 					contenu = contenu.substring(contenu.indexOf("hr"));//On quitte les dommages
 				}
@@ -423,7 +442,6 @@ public class ProjetPortable extends JFrame implements ActionListener {
 					frappe = contenu.substring(0, contenu.indexOf("<"));
 				}
 			//fin des critères
-				
 			//Partie recette
 				contenu = contenu.substring(contenu.indexOf("item-recette")+13);//début de la recette
 				String elementRecette = "";
@@ -460,7 +478,10 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				
 				boolean exist = ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);//true si existait pas
 				if(testDommage && exist){
-					int idObj = ProjetPortable.insertDommages(nomObjet, minDom, maxDom, typeDom);
+					int idObj = 0;
+					for(int i = 0; i < caracs.size(); i++){
+						idObj = ProjetPortable.insertDommages(listdoms.get(i).nomObjet, listdoms.get(i).minDom, listdoms.get(i).maxDom, listdoms.get(i).eleDom, listdoms.get(i).typeDom);
+					}
 					if(idObj != 0){
 						for(int i = 0; i < caracs.size(); i++){
 							Carac c = caracs.get(i);

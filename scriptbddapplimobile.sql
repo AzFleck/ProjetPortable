@@ -73,6 +73,17 @@ insert into Element values (4, "Eau");
 insert into Element values (5, "Air");
 
 -- -----------------------------------------------------
+-- Table `TypeDommages`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TypeDommages` (
+  `idTypeDom` INT NOT NULL,
+  `designation` VARCHAR(45) NOT NULL ,
+  PRIMARY KEY (`idTypeDom`) );
+insert into TypeDommages values (1, "Dommages");
+insert into TypeDommages values (2, "Vol");
+insert into TypeDommages values (3, "Soin");
+
+-- -----------------------------------------------------
 -- Table `Dommages`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Dommages` (
@@ -80,14 +91,20 @@ CREATE TABLE IF NOT EXISTS `Dommages` (
   `min` INT NOT NULL,
   `max` INT NOT NULL,
   `Element_idElement` INT NOT NULL,
+  `idTypeDom` INT NOT NULL,
   PRIMARY KEY (`idDommages`, `Element_idElement`),
   INDEX `fk_Dommages_Element1_idx` (`Element_idElement` ASC),
   CONSTRAINT `fk_Dommages_Element1`
     FOREIGN KEY (`Element_idElement`)
     REFERENCES `Element` (`idElement`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Dommages_TypeDommages`
+    FOREIGN KEY (`idTypeDom`)
+    REFERENCES `TypeDommages` (`idTypeDom`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION);
-
+	
 -- -----------------------------------------------------
 -- Table `Type`
 -- -----------------------------------------------------
