@@ -127,7 +127,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 	 */
 	public static void main(String[] args) {
 		//ProjetPortable pp = new ProjetPortable();
-            ProjetPortable.test();
+            ProjetPortable.test("http://www.dofusbook.net/encyclopedie/liste/arc-151-200.html");
 	}
 
 	@Override
@@ -137,7 +137,6 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		 * Ouvrir le fichier puis écrire la requéte à la fin du fichier
 		 * Vider les champs
 		 */
-		ProjetPortable.test();
 	}
 	
 	public static void ecrireFinFichier(String texte, Connection con){
@@ -151,7 +150,7 @@ public class ProjetPortable extends JFrame implements ActionListener {
 			output.flush();
 			output.close();
 			Statement stateEcriture = con.createStatement();
-			//stateEcriture.executeUpdate(texte);
+			stateEcriture.executeUpdate(texte);
 		} catch (Exception ex) {
 			ProjetPortable.ecrireLog(ex.getMessage());
 		}
@@ -333,11 +332,11 @@ public class ProjetPortable extends JFrame implements ActionListener {
 		}
 	}
 	
-	public static void test() {
+	public static void test(String stringurl) {
 		try {
 			boolean testDommage = false;
 			String contenu = "";
-			URL url = new URL("http://www.dofusbook.net/encyclopedie/liste/arc-151-200.html");
+			URL url = new URL(stringurl);
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), "UTF8"));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null)
@@ -477,10 +476,28 @@ public class ProjetPortable extends JFrame implements ActionListener {
 				cpt++;
 				
 				boolean exist = ProjetPortable.insertObjet(nomObjet, imgObjet, lvlObjet, elementRecette, typeObjet, panoplie, prerequis);//true si existait pas
-				if(testDommage && exist){
-					int idObj = 0;
-					for(int i = 0; i < caracs.size(); i++){
-						idObj = ProjetPortable.insertDommages(listdoms.get(i).nomObjet, listdoms.get(i).minDom, listdoms.get(i).maxDom, listdoms.get(i).eleDom, listdoms.get(i).typeDom);
+				String reqidobj = "select idObjet from objet where nom = \"" + nomObjet + "\"";
+				Class.forName("com.mysql.jdbc.Driver");
+				Connection con = DriverManager.getConnection("jdbc:mysql://localhost/projetappli", "root", "root");
+				Statement stateidobj = con.createStatement();
+				ResultSet resultidobj = stateidobj.executeQuery(reqidobj);
+				int idObj = 0;
+				if(resultidobj.next()){
+					idObj = resultidobj.getInt(1);
+				}
+				else{
+					String reqmaxidobj = "select max(idObjet) from objet";
+					Statement statemaxidobj = con.createStatement();
+					ResultSet resultmaxidobj = statemaxidobj.executeQuery(reqmaxidobj);
+					if(resultmaxidobj.next()){
+						idObj = resultmaxidobj.getInt(1) + 1;
+					}
+				}
+				if(exist){
+					if(testDommage){
+						for(int i = 0; i < listdoms.size(); i++){
+							idObj = ProjetPortable.insertDommages(listdoms.get(i).nomObjet, listdoms.get(i).minDom, listdoms.get(i).maxDom, listdoms.get(i).eleDom, listdoms.get(i).typeDom);
+						}
 					}
 					if(idObj != 0){
 						for(int i = 0; i < caracs.size(); i++){
@@ -488,7 +505,9 @@ public class ProjetPortable extends JFrame implements ActionListener {
 							if(!c.minCarac.equals("Résistance"))
 								ProjetPortable.insertCarac(idObj, c.minCarac, c.maxCarac, c.typeCarac);
 						}
-						ProjetPortable.insertCritere(idObj, PA, portee, bonusCC, chanceCC, frappe);
+						if(!PA.equals("")){
+							ProjetPortable.insertCritere(idObj, PA, portee, bonusCC, chanceCC, frappe);
+						}
 					}
 				}
 			}while(contenu.indexOf("<form ") != -1);

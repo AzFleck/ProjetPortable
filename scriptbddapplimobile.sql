@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS `Panoplie` (
   `idPanoplie` INT NOT NULL,
   `label` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`idPanoplie`));
+insert into panoplie (idPanoplie,label) values (0, "Aucune");
 
 -- -----------------------------------------------------
 -- Table `Element`
